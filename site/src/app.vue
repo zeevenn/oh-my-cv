@@ -11,6 +11,9 @@ const { t, locale } = useI18n();
 
 const colorMode = useColorMode();
 const preferredDark = usePreferredDark();
+const appBaseURL = useRuntimeConfig().app.baseURL;
+const withBase = (path: string) =>
+  `${appBaseURL}${path.replace(/^\//, "")}`.replace(/^\/\//, "/");
 
 useHead({
   title: t("head.title"),
@@ -29,7 +32,7 @@ useHead({
     {
       rel: "icon",
       type: "image/svg+xml",
-      href: () => (preferredDark.value ? "/favicon-dark.svg" : "/favicon.svg")
+      href: () => withBase(preferredDark.value ? "favicon-dark.svg" : "favicon.svg")
     }
   ],
   script: [
