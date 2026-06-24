@@ -1,7 +1,12 @@
 <template>
-  <UiDialog>
-    <UiTooltipProvider>
-      <UiTooltip>
+  <UiDialog :open="dialogOpen" @update:open="handleDialogOpenChange">
+    <UiTooltipProvider :ignore-non-keyboard-focus="true">
+      <UiTooltip
+        :open="tooltipOpen"
+        :disabled="dialogOpen || tooltipSuppressed || !canShowTooltip"
+        :ignore-non-keyboard-focus="true"
+        @update:open="handleTooltipOpenChange"
+      >
         <UiTooltipTrigger as-child>
           <UiDialogTrigger as-child>
             <UiButton
@@ -146,7 +151,35 @@ import { BadgeCheck, CircleAlert, Cloud, RefreshCw } from "lucide-vue-next";
 
 const { sync } = useSyncStore();
 
+const dialogOpen = ref(false);
+const tooltipOpen = ref(false);
+const tooltipSuppressed = ref(false);
+const canShowTooltip = useMediaQuery("(hover: hover) and (pointer: fine)");
+let tooltipSuppressTimer: ReturnType<typeof window.setTimeout> | null = null;
+
 const isConfigured = computed(() => githubSyncService.isConfigured());
+
+const suppressTooltip = () => {
+  tooltipOpen.value = false;
+  tooltipSuppressed.value = true;
+
+  if (tooltipSuppressTimer) window.clearTimeout(tooltipSuppressTimer);
+
+  tooltipSuppressTimer = window.setTimeout(() => {
+    tooltipSuppressed.value = false;
+    tooltipSuppressTimer = null;
+  }, 1500);
+};
+
+const handleDialogOpenChange = (open: boolean) => {
+  dialogOpen.value = open;
+  suppressTooltip();
+};
+
+const handleTooltipOpenChange = (open: boolean) => {
+  tooltipOpen.value =
+    open && canShowTooltip.value && !dialogOpen.value && !tooltipSuppressed.value;
+};
 
 const connect = () => githubSyncService.connect();
 const syncNow = () => githubSyncService.syncNow();
@@ -167,4 +200,8 @@ const formatDate = (date: string) => {
     `${padDatePart(value.getHours())}:${padDatePart(value.getMinutes())}:${padDatePart(value.getSeconds())}`
   ].join(" ");
 };
+
+onBeforeUnmount(() => {
+  if (tooltipSuppressTimer) window.clearTimeout(tooltipSuppressTimer);
+});
 </script>
