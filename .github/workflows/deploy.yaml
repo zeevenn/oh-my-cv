@@ -2,9 +2,9 @@ name: Build and deploy Nuxt site to Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 permissions:
   contents: read
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      NODE_VERSION: 20
+      NODE_VERSION: 24
 
     steps:
       - name: Checkout
