@@ -2,7 +2,8 @@ import { pwa } from "./configs/pwa";
 import { i18n } from "./configs/i18n";
 
 const appBaseURL = "/oh-my-cv/";
-const siteUrl = "https://zeevenn.github.io/oh-my-cv/";
+const siteUrl = "https://zeevenn.github.io";
+const publicSiteUrl = `${siteUrl}${appBaseURL}`;
 const withBase = (path: string) =>
   `${appBaseURL}${path.replace(/^\//, "")}`.replace(/^\/\//, "/");
 
@@ -60,7 +61,7 @@ export default defineNuxtConfig({
         { name: "application-name", content: "Oh My CV!" },
         { name: "apple-mobile-web-app-title", content: "Oh My CV!" },
         { name: "msapplication-TileColor", content: "#fff" },
-        { property: "og:url", content: siteUrl },
+        { property: "og:url", content: publicSiteUrl },
         { property: "og:type", content: "website" }
       ]
     }
@@ -70,5 +71,6 @@ export default defineNuxtConfig({
     url: siteUrl
   },
 
-  pwa
+  pwa,
+  compatibilityDate: "2026-06-24"
 });
