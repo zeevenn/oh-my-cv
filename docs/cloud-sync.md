@@ -41,9 +41,20 @@ Runtime config:
 
 ```bash
 NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID=<github-oauth-app-client-id>
+NUXT_PUBLIC_GITHUB_OAUTH_PROXY_BASE=<oauth-proxy-base-url>
 ```
 
 The GitHub OAuth app must have Device Flow enabled and request the `gist` scope.
+
+GitHub's Device Flow OAuth endpoints do not allow browser CORS requests. The app must call a same-origin Nuxt server route in development, or a tiny CORS proxy in production static hosting.
+
+Local development defaults to:
+
+```bash
+NUXT_PUBLIC_GITHUB_OAUTH_PROXY_BASE=/api/github
+```
+
+GitHub Pages cannot run Nuxt server routes, so production must set `NUXT_PUBLIC_GITHUB_OAUTH_PROXY_BASE` to an external worker such as Cloudflare Workers. The worker only forwards OAuth device-code and access-token requests; it does not store tokens or resume data.
 
 User flow:
 
@@ -169,3 +180,68 @@ Not implemented yet:
 If the project later moves away from pure static hosting, a backend token broker can provide a smoother "Sign in with GitHub" OAuth popup. Keep the Device Flow path as a static-compatible fallback.
 
 Do not request broader GitHub permissions than `gist` for the Gist backend. If private repo sync is added later, implement it separately as an advanced backend, preferably through a GitHub App with repository-scoped permissions.
+
+For GitHub Pages, configure repository Actions variables:
+
+```txt
+GITHUB_OAUTH_CLIENT_ID=<github-oauth-app-client-id>
+GITHUB_OAUTH_PROXY_BASE=https://<worker-host>/github
+```
+
+Minimal Cloudflare Worker example:
+
+```ts
+const allowedOrigins = new Set([
+  "https://ohmycv.app",
+  "http://localhost:3000",
+  "http://127.0.0.1:3010"
+]);
+
+const corsHeaders = (origin: string | null) => ({
+  "Access-Control-Allow-Origin": origin && allowedOrigins.has(origin) ? origin : "https://ohmycv.app",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "content-type, accept"
+});
+
+export default {
+  async fetch(request: Request) {
+    const origin = request.headers.get("Origin");
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders(origin) });
+    }
+
+    const url = new URL(request.url);
+    const target =
+      url.pathname === "/github/device-code"
+        ? "https://github.com/login/device/code"
+        : url.pathname === "/github/access-token"
+          ? "https://github.com/login/oauth/access_token"
+          : "";
+
+    if (!target || request.method !== "POST") {
+      return new Response("Not found", {
+        status: 404,
+        headers: corsHeaders(origin)
+      });
+    }
+
+    const response = await fetch(target, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": request.headers.get("Content-Type") ?? "application/x-www-form-urlencoded"
+      },
+      body: await request.text()
+    });
+
+    return new Response(await response.text(), {
+      status: response.status,
+      headers: {
+        ...corsHeaders(origin),
+        "Content-Type": "application/json"
+      }
+    });
+  }
+};
+```

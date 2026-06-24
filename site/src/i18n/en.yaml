@@ -22,7 +22,7 @@ sync:
     desc: Resume data is saved as plain JSON in your GitHub Secret Gist. Secret gists are not searchable, but anyone with the URL can read them.
   not_configured:
     title: GitHub OAuth is not configured
-    desc: Set NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID to enable GitHub Device Flow.
+    desc: Set NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID. Static production deployments also need NUXT_PUBLIC_GITHUB_OAUTH_PROXY_BASE.
 
 head:
   title: Oh My CV! - Free Online Resume Maker

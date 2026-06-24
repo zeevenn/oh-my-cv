@@ -9,7 +9,13 @@
               size="round"
               :aria-label="$t('sync.trigger')"
             >
-              <span :class="[statusIcon, 'text-lg']" />
+              <RefreshCw
+                v-if="sync.status === 'syncing' || sync.status === 'connecting'"
+                class="size-[18px] animate-spin"
+              />
+              <CircleAlert v-else-if="sync.status === 'error'" class="size-[18px]" />
+              <BadgeCheck v-else-if="sync.provider === 'github'" class="size-[18px]" />
+              <Cloud v-else class="size-[18px]" />
             </UiButton>
           </UiDialogTrigger>
         </UiTooltipTrigger>
@@ -19,7 +25,7 @@
       </UiTooltip>
     </UiTooltipProvider>
 
-    <UiDialogScrollContent class="max-w-md">
+    <UiDialogScrollContent class="w-[calc(100vw-2rem)] max-w-xl">
       <UiDialogHeader>
         <UiDialogTitle>{{ $t("sync.title") }}</UiDialogTitle>
         <UiDialogDescription>{{ $t("sync.desc") }}</UiDialogDescription>
@@ -63,24 +69,25 @@
 
       <template v-else-if="sync.provider === 'github'">
         <div class="space-y-3">
-          <div class="hstack gap-x-3 rounded-md border p-3">
+          <div class="flex min-w-0 items-center gap-3 rounded-md border p-3">
             <img
               v-if="sync.user?.avatarUrl"
               :src="sync.user.avatarUrl"
               :alt="sync.user.login"
-              class="size-8 rounded-full"
+              class="size-9 shrink-0 rounded-full"
             />
-            <span v-else i-tabler:brand-github class="size-8" />
-            <div class="min-w-0">
+            <span v-else i-tabler:brand-github class="size-9 shrink-0" />
+            <div class="min-w-0 flex-1 overflow-hidden">
               <div class="truncate text-sm font-medium">
                 {{ $t("sync.connected_as", { user: sync.user?.login }) }}
               </div>
               <a
                 v-if="sync.gistUrl"
                 :href="sync.gistUrl"
+                :title="sync.gistUrl"
                 target="_blank"
                 rel="noreferrer noopener"
-                class="block truncate text-xs text-muted-foreground underline-offset-4 hover:underline"
+                class="block max-w-full truncate text-xs text-muted-foreground underline-offset-4 hover:underline"
               >
                 {{ sync.gistUrl }}
               </a>
@@ -92,18 +99,17 @@
           </div>
         </div>
 
-        <UiDialogFooter class="gap-y-2">
-          <UiButton variant="outline" @click="disconnect">
+        <UiDialogFooter class="gap-y-2 sm:gap-x-2">
+          <UiButton class="w-full sm:w-auto" variant="outline" @click="disconnect">
             {{ $t("sync.disconnect") }}
           </UiButton>
-          <UiButton :disabled="sync.status === 'syncing'" @click="syncNow">
-            <span
-              :class="[
-                'mr-1.5 size-4',
-                sync.status === 'syncing'
-                  ? 'i-lucide:refresh-cw animate-spin'
-                  : 'i-lucide:refresh-cw'
-              ]"
+          <UiButton
+            class="w-full sm:w-auto"
+            :disabled="sync.status === 'syncing'"
+            @click="syncNow"
+          >
+            <RefreshCw
+              :class="['mr-1.5 size-4', sync.status === 'syncing' && 'animate-spin']"
             />
             {{ $t("sync.sync_now") }}
           </UiButton>
@@ -122,14 +128,11 @@
             :disabled="!isConfigured || sync.status === 'connecting'"
             @click="connect"
           >
-            <span
-              :class="[
-                'mr-1.5 size-4',
-                sync.status === 'connecting'
-                  ? 'i-lucide:refresh-cw animate-spin'
-                  : 'i-tabler:brand-github'
-              ]"
+            <RefreshCw
+              v-if="sync.status === 'connecting'"
+              class="mr-1.5 size-4 animate-spin"
             />
+            <span v-else i-tabler:brand-github class="mr-1.5 size-4" />
             {{ $t("sync.connect") }}
           </UiButton>
         </UiDialogFooter>
@@ -139,19 +142,11 @@
 </template>
 
 <script lang="ts" setup>
+import { BadgeCheck, CircleAlert, Cloud, RefreshCw } from "lucide-vue-next";
+
 const { sync } = useSyncStore();
 
 const isConfigured = computed(() => githubSyncService.isConfigured());
-
-const statusIcon = computed(() => {
-  if (sync.status === "syncing" || sync.status === "connecting") {
-    return "i-lucide:refresh-cw animate-spin";
-  }
-
-  if (sync.status === "error") return "i-lucide:cloud-alert";
-  if (sync.provider === "github") return "i-lucide:cloud-check";
-  return "i-lucide:cloud";
-});
 
 const connect = () => githubSyncService.connect();
 const syncNow = () => githubSyncService.syncNow();
@@ -162,6 +157,14 @@ const copyCode = async () => {
   await navigator.clipboard.writeText(sync.deviceLogin.userCode);
 };
 
-const formatDate = (date: string) =>
-  new Date(Number(date)).toISOString().substring(0, 19).replace("T", " ");
+const padDatePart = (value: number) => value.toString().padStart(2, "0");
+
+const formatDate = (date: string) => {
+  const value = new Date(Number(date));
+
+  return [
+    `${value.getFullYear()}-${padDatePart(value.getMonth() + 1)}-${padDatePart(value.getDate())}`,
+    `${padDatePart(value.getHours())}:${padDatePart(value.getMinutes())}:${padDatePart(value.getSeconds())}`
+  ].join(" ");
+};
 </script>

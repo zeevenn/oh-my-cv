@@ -34,7 +34,16 @@ const generateDeviceId = () => {
 
 const getGithubClientId = () => {
   const config = useRuntimeConfig();
-  return config.public.githubOAuthClientId as string;
+  const publicConfig = config.public as Record<string, string | undefined>;
+
+  return publicConfig.githubOauthClientId ?? publicConfig.githubOAuthClientId ?? "";
+};
+
+const getGithubOauthProxyBase = () => {
+  const config = useRuntimeConfig();
+  const publicConfig = config.public as Record<string, string | undefined>;
+
+  return publicConfig.githubOauthProxyBase || (import.meta.dev ? "/api/github" : "");
 };
 
 export class GithubSyncService {
@@ -191,13 +200,14 @@ export class GithubSyncService {
   }
 
   public isConfigured() {
-    return Boolean(getGithubClientId());
+    return Boolean(getGithubClientId() && getGithubOauthProxyBase());
   }
 
   public async connect() {
     if (!isClient) return;
 
     const clientId = getGithubClientId();
+    const proxyBase = getGithubOauthProxyBase();
     const store = useSyncStore();
 
     if (!clientId) {
@@ -206,11 +216,17 @@ export class GithubSyncService {
       return;
     }
 
+    if (!proxyBase) {
+      store.setSync("status", "error");
+      store.setSync("error", "GitHub OAuth proxy base is not configured.");
+      return;
+    }
+
     try {
       store.setSync("status", "connecting");
       store.setSync("error", "");
 
-      const oauth = new GithubDeviceFlowClient(clientId);
+      const oauth = new GithubDeviceFlowClient(clientId, proxyBase);
       const device = await oauth.requestDeviceCode();
       const expiresAt = Date.now() + device.expires_in * 1000;
 

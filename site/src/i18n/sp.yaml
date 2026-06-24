@@ -22,7 +22,7 @@ sync:
     desc: Los datos del CV se guardan como JSON sin cifrar en tu GitHub Secret Gist. Los secret gists no aparecen en busquedas publicas, pero cualquiera con la URL puede leerlos.
   not_configured:
     title: GitHub OAuth no esta configurado
-    desc: Define NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID para activar GitHub Device Flow.
+    desc: Define NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID. En produccion estatica tambien necesitas NUXT_PUBLIC_GITHUB_OAUTH_PROXY_BASE.
 
 head:
   title: Oh My CV! - Generador de CV online GRATUITO!!

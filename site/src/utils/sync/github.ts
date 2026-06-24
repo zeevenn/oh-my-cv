@@ -27,10 +27,17 @@ export class GithubApiError extends Error {
 }
 
 export class GithubDeviceFlowClient {
-  constructor(private _clientId: string) {}
+  constructor(
+    private _clientId: string,
+    private _proxyBase: string
+  ) {}
+
+  private _url(path: string) {
+    return `${this._proxyBase.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
+  }
 
   public async requestDeviceCode(): Promise<GithubDeviceCodeResponse> {
-    const res = await fetch("https://github.com/login/device/code", {
+    const res = await fetch(this._url("device-code"), {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -50,7 +57,7 @@ export class GithubDeviceFlowClient {
   }
 
   public async pollToken(deviceCode: string): Promise<GithubDeviceTokenResponse> {
-    const res = await fetch("https://github.com/login/oauth/access_token", {
+    const res = await fetch(this._url("access-token"), {
       method: "POST",
       headers: {
         Accept: "application/json",

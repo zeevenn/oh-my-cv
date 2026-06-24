@@ -22,7 +22,7 @@ sync:
     desc: 简历数据会以明文 JSON 保存到你的 GitHub Secret Gist。Secret Gist 不会被公开搜索，但拥有链接的人可以读取。
   not_configured:
     title: GitHub OAuth 未配置
-    desc: 设置 NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID 后才能启用 GitHub Device Flow。
+    desc: 设置 NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID；生产静态部署还需要 NUXT_PUBLIC_GITHUB_OAUTH_PROXY_BASE。
 
 head:
   title: Oh My CV! - 免费的在线简历制作工具
