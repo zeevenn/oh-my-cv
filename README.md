@@ -12,7 +12,7 @@ Have fun: [ohmycv.app](https://ohmycv.app/)
 ## Important Notice
 
 - Highly recommend using **Chromium-based browsers**, e.g., [Chrome](https://www.google.com/chrome/) and [Microsoft Edge](https://www.microsoft.com/en-us/edge).
-- **Backup your data**: Cloud backup is coming soon, but isn't available yet. For now, please regularly export and back up your data by clicking the `Save As` button.
+- **Backup your data**: Optional GitHub Secret Gist sync is available when configured. You can still export and back up your data by clicking the `Save As` button.
 
 
 &nbsp;
@@ -34,6 +34,7 @@ Have fun: [ohmycv.app](https://ohmycv.app/)
 - It works offline ([PWA](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps))
 - Your data in your hands:
   - All data is saved locally in your browser (see [here](https://localforage.github.io/localForage/) for details)
+  - Optional GitHub Secret Gist sync stores your workspace in your own GitHub account
   - Hosted on [Github Pages](https://pages.github.com/) as an open-source static website, which doesn't (have the ability to) collect your data
   - No user tracking or ads
 - Dark mode

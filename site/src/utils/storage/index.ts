@@ -8,7 +8,8 @@ import type {
   StorageJson,
   StorageJsonData,
   DbResumeUpdate,
-  DbResumeEmpty
+  DbResumeEmpty,
+  DbResume
 } from "./db";
 
 const AVAILABLE_SERVICES: Record<string, DbService> = {
@@ -16,9 +17,26 @@ const AVAILABLE_SERVICES: Record<string, DbService> = {
   // TODO: Support PGlite: https://github.com/electric-sql/pglite
 };
 
+export type StorageChange =
+  | {
+      type: "create" | "update";
+      resume: DbResume;
+    }
+  | {
+      type: "delete";
+      resume: DbResume;
+    }
+  | {
+      type: "import";
+    };
+
+export type StorageChangeListener = (change: StorageChange) => void | Promise<void>;
+
 export class StorageService {
   private _db: DbService;
   private _version: ValidVersion;
+  private _listeners = new Set<StorageChangeListener>();
+  private _suppressChangeEvents = false;
 
   constructor(service: keyof typeof AVAILABLE_SERVICES) {
     const { VERSION } = useConstant();
@@ -38,6 +56,21 @@ export class StorageService {
     };
   }
 
+  private _emitChange(change: StorageChange) {
+    if (this._suppressChangeEvents) return;
+
+    for (const listener of this._listeners) {
+      Promise.resolve(listener(change)).catch((error) => {
+        console.error("Storage change listener error:", error);
+      });
+    }
+  }
+
+  public onChange(listener: StorageChangeListener) {
+    this._listeners.add(listener);
+    return () => this._listeners.delete(listener);
+  }
+
   public async getResumes() {
     const { data, error } = await this._db.queryAll();
 
@@ -49,6 +82,44 @@ export class StorageService {
     return data ?? [];
   }
 
+  public async getStorageData(): Promise<StorageJsonData> {
+    return (await this.getResumes()).reduce((acc, { id, ...resume }) => {
+      acc[id] = resume;
+      return acc;
+    }, {} as StorageJsonData);
+  }
+
+  public async replaceStorageData(data: StorageJsonData) {
+    this._suppressChangeEvents = true;
+
+    try {
+      const current = await this.getResumes();
+      const incomingIds = new Set(Object.keys(data).map(Number));
+
+      for (const resume of current) {
+        if (!incomingIds.has(resume.id)) await this._db.delete(resume.id);
+      }
+
+      for (const [_id, resume] of Object.entries(data)) {
+        const id = Number(_id);
+        const { data: existing, error } = await this._db.queryById(id);
+
+        if (error) {
+          console.error("Replace storage error:", error.message);
+          continue;
+        }
+
+        if (existing) {
+          await this._db.update({ id, ...resume }, false);
+        } else {
+          await this._db.create({ id, ...resume });
+        }
+      }
+    } finally {
+      this._suppressChangeEvents = false;
+    }
+  }
+
   public async updateResume(data: DbResumeUpdate, newUpdateTime = true) {
     const { data: updatedData, error } = await this._db.update(data, newUpdateTime);
 
@@ -58,6 +129,7 @@ export class StorageService {
     } else {
       const toast = useToast();
       toast.save();
+      this._emitChange({ type: "update", resume: updatedData! });
     }
 
     return updatedData;
@@ -72,6 +144,7 @@ export class StorageService {
     } else {
       const toast = useToast();
       toast.new();
+      this._emitChange({ type: "create", resume: data! });
     }
 
     return data;
@@ -86,6 +159,7 @@ export class StorageService {
     } else {
       const toast = useToast();
       toast.delete(data!.name);
+      this._emitChange({ type: "delete", resume: data! });
     }
 
     return data;
@@ -126,7 +200,12 @@ export class StorageService {
       // TODO: Use toast to show error message
       console.error(`Switch error: Resume ${id} not found.`);
     } else {
-      const { id, updated_at, created_at, ...duplicated } = data!;
+      const duplicated: DbResumeEmpty = {
+        name: data!.name,
+        markdown: data!.markdown,
+        css: data!.css,
+        styles: data!.styles
+      };
 
       const { data: duplicatedData, error: createError } = await this._db.create({
         ...duplicated,
@@ -139,15 +218,13 @@ export class StorageService {
       } else {
         const toast = useToast();
         toast.duplicate(duplicatedData!.name);
+        this._emitChange({ type: "create", resume: duplicatedData! });
       }
     }
   }
 
   public async exportToJSON() {
-    const data = (await this.getResumes()).reduce((acc, { id, ...resume }) => {
-      acc[id] = resume;
-      return acc;
-    }, {} as StorageJsonData);
+    const data = await this.getStorageData();
 
     const json: StorageJson = {
       version: this._version,
@@ -205,6 +282,7 @@ export class StorageService {
     }
 
     toast.import(true);
+    this._emitChange({ type: "import" });
   }
 }
 

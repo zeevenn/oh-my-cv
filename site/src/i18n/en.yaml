@@ -4,6 +4,26 @@ toggle_theme: Toggle theme
 open_toolbar: Open toolbar
 close_toolbar: Close toolbar
 
+sync:
+  trigger: GitHub sync
+  title: GitHub Sync
+  desc: Sync your local resumes to a GitHub Secret Gist.
+  connect: Connect GitHub
+  disconnect: Disconnect
+  sync_now: Sync now
+  error: Sync failed
+  connected_as: "Connected as {user}"
+  last_synced: "Last synced: {time}"
+  device_code: GitHub device code
+  copy_code: Copy code
+  open_github: Open GitHub
+  privacy:
+    title: Secret Gist sync
+    desc: Resume data is saved as plain JSON in your GitHub Secret Gist. Secret gists are not searchable, but anyone with the URL can read them.
+  not_configured:
+    title: GitHub OAuth is not configured
+    desc: Set NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID to enable GitHub Device Flow.
+
 head:
   title: Oh My CV! - Free Online Resume Maker
   desc: Free online resume maker, allows you to create your resume in minutes with Markdown!

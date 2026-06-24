@@ -4,6 +4,26 @@ toggle_theme: 切换颜色模式
 open_toolbar: 打开工具栏
 close_toolbar: 关闭工具栏
 
+sync:
+  trigger: GitHub 同步
+  title: GitHub 同步
+  desc: 将本地简历同步到你的 GitHub Secret Gist。
+  connect: 连接 GitHub
+  disconnect: 断开连接
+  sync_now: 立即同步
+  error: 同步失败
+  connected_as: "已连接为 {user}"
+  last_synced: "上次同步：{time}"
+  device_code: GitHub 设备验证码
+  copy_code: 复制验证码
+  open_github: 打开 GitHub
+  privacy:
+    title: Secret Gist 同步
+    desc: 简历数据会以明文 JSON 保存到你的 GitHub Secret Gist。Secret Gist 不会被公开搜索，但拥有链接的人可以读取。
+  not_configured:
+    title: GitHub OAuth 未配置
+    desc: 设置 NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID 后才能启用 GitHub Device Flow。
+
 head:
   title: Oh My CV! - 免费的在线简历制作工具
   desc: 免费的在线简历制作工具，使用 Markdown 来轻松制作您的简历！

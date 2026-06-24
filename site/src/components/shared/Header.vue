@@ -51,6 +51,8 @@
 
       <SharedToggleDark />
 
+      <SharedGithubSync />
+
       <UiButton
         as="a"
         variant="ghost-secondary"

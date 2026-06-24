@@ -40,4 +40,8 @@ useHead({
     }
   ]
 });
+
+onMounted(() => {
+  githubSyncService.init();
+});
 </script>
