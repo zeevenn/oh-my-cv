@@ -166,6 +166,7 @@ Implemented:
 - tombstones for deletions
 - Header UI with connect, device code, sync now, disconnect
 - English, Chinese, and Spanish i18n strings
+- Cloudflare Worker OAuth proxy in `packages/github-oauth-worker`
 
 Not implemented yet:
 
@@ -185,63 +186,30 @@ For GitHub Pages, configure repository Actions variables:
 
 ```txt
 GITHUB_OAUTH_CLIENT_ID=<github-oauth-app-client-id>
-GITHUB_OAUTH_PROXY_BASE=https://<worker-host>/github
+GITHUB_OAUTH_PROXY_BASE=https://<worker-host>
 ```
 
-Minimal Cloudflare Worker example:
+The worker also accepts `/github/device-code` and `/github/access-token`, so `GITHUB_OAUTH_PROXY_BASE=https://<worker-host>/github` is valid if the worker is mounted behind a shared domain route.
 
-```ts
-const allowedOrigins = new Set([
-  "https://ohmycv.app",
-  "http://localhost:3000",
-  "http://127.0.0.1:3010"
-]);
+Deploy the OAuth proxy:
 
-const corsHeaders = (origin: string | null) => ({
-  "Access-Control-Allow-Origin": origin && allowedOrigins.has(origin) ? origin : "https://ohmycv.app",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "content-type, accept"
-});
-
-export default {
-  async fetch(request: Request) {
-    const origin = request.headers.get("Origin");
-
-    if (request.method === "OPTIONS") {
-      return new Response(null, { headers: corsHeaders(origin) });
-    }
-
-    const url = new URL(request.url);
-    const target =
-      url.pathname === "/github/device-code"
-        ? "https://github.com/login/device/code"
-        : url.pathname === "/github/access-token"
-          ? "https://github.com/login/oauth/access_token"
-          : "";
-
-    if (!target || request.method !== "POST") {
-      return new Response("Not found", {
-        status: 404,
-        headers: corsHeaders(origin)
-      });
-    }
-
-    const response = await fetch(target, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": request.headers.get("Content-Type") ?? "application/x-www-form-urlencoded"
-      },
-      body: await request.text()
-    });
-
-    return new Response(await response.text(), {
-      status: response.status,
-      headers: {
-        ...corsHeaders(origin),
-        "Content-Type": "application/json"
-      }
-    });
-  }
-};
+```bash
+pnpm install
+pnpm --filter=@ohmycv/github-oauth-worker typecheck
+pnpm deploy:github-oauth-worker
 ```
+
+GitHub Actions deploys the worker from `.github/workflows/deploy-github-oauth-worker.yaml` when worker-related files change on `main`, or when the workflow is run manually. Add this repository secret before relying on CI deployment:
+
+```txt
+CLOUDFLARE_API_TOKEN=<cloudflare-workers-api-token>
+```
+
+The worker CORS allowlist is configured in `packages/github-oauth-worker/wrangler.toml`:
+
+```toml
+[vars]
+ALLOWED_ORIGINS = "https://zeevenn.github.io,http://localhost:3000,http://127.0.0.1:3000"
+```
+
+Add the final site origin before deploying if the app is not served from `https://zeevenn.github.io`. Keep this list explicit; the OAuth proxy should not be a public open CORS proxy.

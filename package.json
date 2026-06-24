@@ -9,6 +9,8 @@
     "build:pkg": "pnpm -r --stream build:pkg",
     "build-fast:pkg": "pnpm -r --stream build-fast:pkg",
     "dev": "pnpm --filter=site dev",
+    "dev:github-oauth-worker": "pnpm --filter=@ohmycv/github-oauth-worker dev",
+    "deploy:github-oauth-worker": "pnpm --filter=@ohmycv/github-oauth-worker run deploy",
     "lint": "eslint .",
     "release": "pnpm build:pkg && pnpm build",
     "release:pkg": "pnpm release:pkg:check && pnpm release:pkg:version && pnpm -r publish",

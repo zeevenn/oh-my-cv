@@ -1,0 +1,6 @@
+name = "oh-my-cv-github-oauth"
+main = "src/index.ts"
+compatibility_date = "2026-06-24"
+
+[vars]
+ALLOWED_ORIGINS = "https://zeevenn.github.io,http://localhost:3000,http://127.0.0.1:3000"
