@@ -185,11 +185,11 @@ Do not request broader GitHub permissions than `gist` for the Gist backend. If p
 For GitHub Pages, configure repository Actions variables:
 
 ```txt
-GITHUB_OAUTH_CLIENT_ID=<github-oauth-app-client-id>
-GITHUB_OAUTH_PROXY_BASE=https://<worker-host>
+NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID=<github-oauth-app-client-id>
+NUXT_PUBLIC_GITHUB_OAUTH_PROXY_BASE=https://<worker-host>
 ```
 
-The worker also accepts `/github/device-code` and `/github/access-token`, so `GITHUB_OAUTH_PROXY_BASE=https://<worker-host>/github` is valid if the worker is mounted behind a shared domain route.
+The worker also accepts `/github/device-code` and `/github/access-token`, so `NUXT_PUBLIC_GITHUB_OAUTH_PROXY_BASE=https://<worker-host>/github` is valid if the worker is mounted behind a shared domain route.
 
 Deploy the OAuth proxy:
 

@@ -59,8 +59,8 @@ jobs:
         run: pnpm release
         env:
           NUXT_PUBLIC_GOOGLE_FONTS_KEY: ${{ secrets.GOOGLE_FONTS_KEY }}
-          NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID: ${{ vars.GITHUB_OAUTH_CLIENT_ID }}
-          NUXT_PUBLIC_GITHUB_OAUTH_PROXY_BASE: ${{ vars.GITHUB_OAUTH_PROXY_BASE }}
+          NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID: ${{ vars.NUXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID }}
+          NUXT_PUBLIC_GITHUB_OAUTH_PROXY_BASE: ${{ vars.NUXT_PUBLIC_GITHUB_OAUTH_PROXY_BASE }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

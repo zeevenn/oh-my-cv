@@ -23,6 +23,7 @@ jobs:
 
     env:
       NODE_VERSION: 24
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
     steps:
       - name: Checkout
@@ -43,7 +44,12 @@ jobs:
       - name: Typecheck worker
         run: pnpm --filter=@ohmycv/github-oauth-worker typecheck
 
+      - name: Check Cloudflare API token
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error title=Missing CLOUDFLARE_API_TOKEN::Add a repository Actions secret named CLOUDFLARE_API_TOKEN. Repository variables and environment secrets are not available here."
+            exit 1
+          fi
+
       - name: Deploy worker
         run: pnpm deploy:github-oauth-worker
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
