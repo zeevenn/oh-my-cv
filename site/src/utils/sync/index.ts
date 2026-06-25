@@ -324,7 +324,15 @@ export class GithubSyncService {
     const state = await this._loadState();
     const store = useSyncStore();
 
-    if (!state || this._syncing) return;
+    if (!state) return;
+
+    if (this._syncing) {
+      if (!options.quiet) {
+        store.setSync("status", "syncing");
+        store.setSync("error", "");
+      }
+      return;
+    }
 
     this._syncing = true;
     if (!options.quiet) store.setSync("status", "syncing");
