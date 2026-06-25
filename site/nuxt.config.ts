@@ -4,12 +4,16 @@ import { i18n } from "./configs/i18n";
 const appBaseURL = "/oh-my-cv/";
 const siteUrl = "https://zeevenn.github.io";
 const publicSiteUrl = `${siteUrl}${appBaseURL}`;
+const isProductionBuild = process.argv.some((arg) => ["build", "generate"].includes(arg));
+const buildDir =
+  process.env.NUXT_BUILD_DIR || (isProductionBuild ? ".cache/nuxt-build" : ".nuxt");
 const withBase = (path: string) =>
   `${appBaseURL}${path.replace(/^\//, "")}`.replace(/^\/\//, "/");
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   srcDir: "src/",
+  buildDir,
 
   modules: [
     "@vueuse/nuxt",
