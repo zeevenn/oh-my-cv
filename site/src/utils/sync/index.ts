@@ -8,8 +8,8 @@ import {
   createGistFiles,
   getSyncDocumentFromGist,
   isSameSyncDocument,
-  mergeSyncDocuments,
-  parseSyncDocument
+  parseSyncDocument,
+  resolveSyncDocument
 } from "./document";
 import { GithubDeviceFlowClient, GithubGistClient, readGistFile } from "./github";
 import {
@@ -59,6 +59,15 @@ export class GithubSyncService {
     if (!this._state) {
       this._state =
         (await localForage.getItem<StoredGithubSyncState>(SYNC_STATE_KEY)) ?? null;
+
+      if (this._state && !this._state.lastSyncedDocumentUpdatedAt) {
+        const lastSyncedAt = this._state.lastSyncedAt || this._state.localUpdatedAt;
+        this._state.lastSyncedDocumentUpdatedAt =
+          Number(this._state.localUpdatedAt) > Number(lastSyncedAt)
+            ? lastSyncedAt
+            : this._state.localUpdatedAt;
+        await localForage.setItem(SYNC_STATE_KEY, this._state);
+      }
     }
 
     return this._state;
@@ -88,6 +97,8 @@ export class GithubSyncService {
       gistUrl: state.gistUrl,
       lastSyncedAt: state.lastSyncedAt
     });
+    store.setSync("conflicts", state.conflicts ?? []);
+    if (state.conflicts?.length) store.setSync("status", "conflict");
     store.setSync("initialized", true);
   }
 
@@ -280,7 +291,9 @@ export class GithubSyncService {
           },
           deviceId: generateDeviceId(),
           deleted: {},
+          conflicts: [],
           localUpdatedAt: timestamp,
+          lastSyncedDocumentUpdatedAt: timestamp,
           lastSyncedAt: ""
         });
 
@@ -299,7 +312,9 @@ export class GithubSyncService {
         },
         deviceId: generateDeviceId(),
         deleted: {},
+        conflicts: [],
         localUpdatedAt: timestamp,
+        lastSyncedDocumentUpdatedAt: timestamp,
         lastSyncedAt: ""
       };
 
@@ -312,6 +327,9 @@ export class GithubSyncService {
       state.gistId = gist.id;
       state.gistUrl = gist.html_url;
       state.lastSyncedAt = timestamp;
+      state.lastSyncedDocumentUpdatedAt = doc.updated_at;
+      state.baseDocument = doc;
+      state.conflicts = [];
       await this._saveState(state);
 
       store.setSync("status", "connected");
@@ -343,27 +361,38 @@ export class GithubSyncService {
       const gist = await client.getGist(state.gistId);
       const remoteDoc = await this._readRemoteDocument(client, gist);
       const localDoc = await this._createLocalDocument();
-      const mergedDoc = remoteDoc ? mergeSyncDocuments(localDoc, remoteDoc) : localDoc;
+      const resolved = resolveSyncDocument(localDoc, remoteDoc, state);
+      const mergedDoc = resolved.document;
       const shouldApplyLocal = !isSameSyncDocument(localDoc, mergedDoc);
       const shouldUploadRemote = !isSameSyncDocument(remoteDoc, mergedDoc);
       const timestamp = now();
+      let syncedDoc = mergedDoc;
+
+      if (resolved.conflicts.length) {
+        state.conflicts = resolved.conflicts;
+        state.lastSyncedAt = timestamp;
+        await this._saveState(state);
+        store.setSync("status", "conflict");
+        return;
+      }
 
       if (shouldApplyLocal) await this._applyDocument(mergedDoc);
 
       if (shouldUploadRemote) {
-        const nextDoc = {
+        syncedDoc = {
           ...mergedDoc,
           updated_at: maxDocumentTime(mergedDoc, timestamp),
           device_id: state.deviceId
         };
 
-        await this._writeRemoteDocument(client, gist, nextDoc);
-        state.localUpdatedAt = nextDoc.updated_at;
-      } else {
-        state.localUpdatedAt = mergedDoc.updated_at;
+        await this._writeRemoteDocument(client, gist, syncedDoc);
       }
 
+      state.localUpdatedAt = syncedDoc.updated_at;
+      state.lastSyncedDocumentUpdatedAt = syncedDoc.updated_at;
       state.deleted = mergedDoc.deleted ?? {};
+      state.baseDocument = syncedDoc;
+      state.conflicts = [];
       state.lastSyncedAt = timestamp;
       await this._saveState(state);
       store.setSync("status", "connected");
@@ -371,6 +400,52 @@ export class GithubSyncService {
       this._setError(error, "GitHub sync failed.");
     } finally {
       this._syncing = false;
+    }
+  }
+
+  public async resolveConflicts(source: "local" | "remote") {
+    const state = await this._loadState();
+    const store = useSyncStore();
+
+    if (!state || !state.conflicts?.length) return;
+
+    store.setSync("status", "syncing");
+    store.setSync("error", "");
+
+    try {
+      const client = new GithubGistClient(state.token);
+      const gist = await client.getGist(state.gistId);
+      const remoteDoc = await this._readRemoteDocument(client, gist);
+      const timestamp = now();
+      let syncedDoc: GithubSyncDocument;
+
+      if (source === "remote") {
+        if (!remoteDoc) throw new Error("Remote sync document is missing.");
+
+        await this._applyDocument(remoteDoc);
+        syncedDoc = remoteDoc;
+      } else {
+        const localDoc = await this._createLocalDocument(undefined, state);
+
+        syncedDoc = {
+          ...localDoc,
+          updated_at: maxDocumentTime(localDoc, timestamp),
+          device_id: state.deviceId
+        };
+
+        await this._writeRemoteDocument(client, gist, syncedDoc);
+      }
+
+      state.localUpdatedAt = syncedDoc.updated_at;
+      state.lastSyncedDocumentUpdatedAt = syncedDoc.updated_at;
+      state.deleted = syncedDoc.deleted ?? {};
+      state.baseDocument = syncedDoc;
+      state.conflicts = [];
+      state.lastSyncedAt = timestamp;
+      await this._saveState(state);
+      store.setSync("status", "connected");
+    } catch (error) {
+      this._setError(error, "GitHub sync conflict resolution failed.");
     }
   }
 

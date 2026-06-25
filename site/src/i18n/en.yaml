@@ -17,6 +17,11 @@ sync:
   device_code: GitHub device code
   copy_code: Copy code
   open_github: Open GitHub
+  conflict:
+    title: Sync conflict detected
+    desc: "{count} local/remote resume conflict detected. Choose which side to keep for now."
+    keep_local: Keep local version
+    keep_remote: Use remote version
   privacy:
     title: Secret Gist sync
     desc: Resume data is saved as plain JSON in your GitHub Secret Gist. Secret gists are not searchable, but anyone with the URL can read them.

@@ -1,13 +1,8 @@
 <template>
-  <div class="w-56 h-80">
-    <button
-      class="resume-card group w-[210px] h-[299px] flex-center bg-secondary hover:bg-background ring-when-focus"
-      :aria-label="$t('dashboard.new')"
-      @click="newAndSwitch"
-    >
-      <span i-ic:round-plus text="5xl muted-foreground group-hover:primary" />
-    </button>
-  </div>
+  <UiButton class="gap-x-1.5" @click="newAndSwitch">
+    <span i-ic:round-plus size-4 />
+    {{ $t("dashboard.new") }}
+  </UiButton>
 </template>
 
 <script lang="ts" setup>

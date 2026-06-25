@@ -17,6 +17,11 @@ sync:
   device_code: GitHub 设备验证码
   copy_code: 复制验证码
   open_github: 打开 GitHub
+  conflict:
+    title: 检测到同步冲突
+    desc: "{count} 份简历在本地和远端都有不同修改。请选择暂时保留哪一侧。"
+    keep_local: 保留本地版本
+    keep_remote: 使用远端版本
   privacy:
     title: Secret Gist 同步
     desc: 简历数据会以明文 JSON 保存到你的 GitHub Secret Gist。Secret Gist 不会被公开搜索，但拥有链接的人可以读取。

@@ -1,3 +1,5 @@
+import type { GithubSyncConflict } from "~/utils/sync/types";
+
 export type SyncProvider = "github";
 
 export type SyncStatus =
@@ -6,7 +8,8 @@ export type SyncStatus =
   | "waiting"
   | "connected"
   | "syncing"
-  | "error";
+  | "error"
+  | "conflict";
 
 export type SyncUser = {
   login: string;
@@ -29,6 +32,7 @@ export type SyncState = {
   lastSyncedAt: string;
   error: string;
   deviceLogin: DeviceLogin | null;
+  conflicts: GithubSyncConflict[];
 };
 
 export const useSyncStore = defineStore("sync", () => {
@@ -41,7 +45,8 @@ export const useSyncStore = defineStore("sync", () => {
     gistUrl: "",
     lastSyncedAt: "",
     error: "",
-    deviceLogin: null
+    deviceLogin: null,
+    conflicts: []
   });
 
   const setSync = <T extends keyof SyncState>(key: T, value: SyncState[T]) => {
@@ -62,6 +67,7 @@ export const useSyncStore = defineStore("sync", () => {
     sync.lastSyncedAt = data.lastSyncedAt ?? "";
     sync.error = "";
     sync.deviceLogin = null;
+    sync.conflicts = [];
   };
 
   const reset = () => {
@@ -73,6 +79,7 @@ export const useSyncStore = defineStore("sync", () => {
     sync.lastSyncedAt = "";
     sync.error = "";
     sync.deviceLogin = null;
+    sync.conflicts = [];
   };
 
   return {

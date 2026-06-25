@@ -18,7 +18,10 @@
                 v-if="sync.status === 'syncing' || sync.status === 'connecting'"
                 class="size-[18px] animate-spin"
               />
-              <CircleAlert v-else-if="sync.status === 'error'" class="size-[18px]" />
+              <CircleAlert
+                v-else-if="sync.status === 'error' || sync.status === 'conflict'"
+                class="size-[18px]"
+              />
               <BadgeCheck v-else-if="sync.provider === 'github'" class="size-[18px]" />
               <Cloud v-else class="size-[18px]" />
             </UiButton>
@@ -74,6 +77,30 @@
 
       <template v-else-if="sync.provider === 'github'">
         <div class="space-y-3">
+          <UiAlert v-if="sync.conflicts.length" class="space-y-3">
+            <span i-lucide:git-compare-arrows />
+            <UiAlertTitle>{{ $t("sync.conflict.title") }}</UiAlertTitle>
+            <UiAlertDescription>
+              {{ $t("sync.conflict.desc", { count: sync.conflicts.length }) }}
+            </UiAlertDescription>
+
+            <div class="grid gap-2 pl-7 sm:grid-cols-2">
+              <UiButton
+                variant="outline"
+                :disabled="sync.status === 'syncing'"
+                @click="resolveConflicts('remote')"
+              >
+                {{ $t("sync.conflict.keep_remote") }}
+              </UiButton>
+              <UiButton
+                :disabled="sync.status === 'syncing'"
+                @click="resolveConflicts('local')"
+              >
+                {{ $t("sync.conflict.keep_local") }}
+              </UiButton>
+            </div>
+          </UiAlert>
+
           <div class="flex min-w-0 items-center gap-3 rounded-md border p-3">
             <img
               v-if="sync.user?.avatarUrl"
@@ -183,6 +210,8 @@ const handleTooltipOpenChange = (open: boolean) => {
 
 const connect = () => githubSyncService.connect();
 const syncNow = () => githubSyncService.syncNow();
+const resolveConflicts = (source: "local" | "remote") =>
+  githubSyncService.resolveConflicts(source);
 const disconnect = () => githubSyncService.disconnect();
 
 const copyCode = async () => {

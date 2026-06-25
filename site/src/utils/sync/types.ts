@@ -16,6 +16,31 @@ export type GithubSyncDocument = {
   deleted?: Record<string, string>;
 };
 
+export type GithubSyncResumeEntry =
+  | {
+      status: "present";
+      resume: StorageJsonData[string];
+    }
+  | {
+      status: "deleted";
+      deletedAt: string;
+    }
+  | {
+      status: "missing";
+    };
+
+export type GithubSyncConflictReason = "both_changed" | "create_create" | "delete_modify";
+
+export type GithubSyncConflict = {
+  id: string;
+  reason: GithubSyncConflictReason;
+  createdAt: string;
+  fields?: string[];
+  base: GithubSyncResumeEntry;
+  local: GithubSyncResumeEntry;
+  remote: GithubSyncResumeEntry;
+};
+
 export type StoredGithubSyncState = {
   provider: "github";
   token: string;
@@ -28,6 +53,9 @@ export type StoredGithubSyncState = {
   deviceId: string;
   deleted: Record<string, string>;
   localUpdatedAt: string;
+  lastSyncedDocumentUpdatedAt?: string;
+  baseDocument?: GithubSyncDocument;
+  conflicts?: GithubSyncConflict[];
   lastSyncedAt: string;
 };
 

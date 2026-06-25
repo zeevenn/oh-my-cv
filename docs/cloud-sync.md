@@ -130,26 +130,42 @@ Flow:
 
 1. Build a local sync document from IndexedDB/localForage.
 2. Fetch the remote `ohmycv-sync.json`.
-3. Merge local and remote by resume ID.
-4. For each resume, keep the record with the newer `updated_at`.
-5. If timestamps are equal, keep the record from the newer document-level `updated_at`.
-6. Deletions use tombstones in `deleted`; if `deleted_at` is newer than a resume record, the resume stays deleted.
-7. Apply the merged document locally.
-8. Upload the merged document and regenerated Markdown copies to the gist.
+3. If the remote document is newer than the last document this device synced, and
+   this device has no unsynced local changes, apply the remote document locally.
+4. Otherwise, compare local and remote against the last successfully synced
+   `baseDocument` stored on this device.
+5. If only one side changed a resume from base, keep the changed side.
+6. If both sides changed the same resume from base:
+   - non-overlapping fields are merged automatically
+   - Markdown and custom CSS are merged with a line-based diff3 merge when possible
+   - delete/modify, create/create, or overlapping field edits become explicit conflicts
+7. Deletions use tombstones in `deleted`; if `deleted_at` is newer than a resume record, the resume stays deleted.
+8. If conflicts exist, stop the sync before applying or uploading either side. The
+   local sync state stores `base`, `local`, and `remote` entries for review.
+9. If there are no conflicts, apply the resolved document locally.
+10. Upload the resolved document and regenerated Markdown copies to the gist if it differs from the remote.
 
-This is intentionally simple. It is good enough for single-user, multi-device sync where concurrent editing is rare.
+This is still local-first and single-user oriented, but it no longer silently
+overwrites diverged edits from another device.
 
 ## Conflict Policy
 
-MVP uses last-write-wins.
+Current conflict handling uses the same core idea as Git: keep a common ancestor
+and run a three-way merge.
 
-This can overwrite one device's changes if two devices edit the same resume offline and then sync. That tradeoff is acceptable for the first version because resume editing is usually single-user and low-frequency.
+The common ancestor is `baseDocument`, saved locally after every successful sync.
+It is not uploaded to the gist. Remote data remains a plain schema-1 sync document.
 
-Future improvements:
+If a conflict is detected, the sync dialog offers two coarse resolution actions:
+
+- use the remote version
+- keep the local version and upload it to the gist
+
+Future improvements can build on the stored conflict entries:
 
 - per-resume conflict copies, e.g. `Resume (conflict from MacBook)`
 - visible sync history
-- manual compare for Markdown conflicts
+- manual merge editor for Markdown, CSS, and structured style conflicts
 
 ## Current Implementation Scope
 

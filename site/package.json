@@ -42,6 +42,7 @@
     "markdown-it-deflist": "^3.0.0",
     "markdown-it-link-attributes": "^4.0.1",
     "monaco-editor": "^0.50.0",
+    "node-diff3": "3.2.1",
     "nuxt": "^3.12.3",
     "nuxt-simple-sitemap": "^4.4.1",
     "pinia": "^2.1.7",

@@ -17,6 +17,11 @@ sync:
   device_code: Codigo de dispositivo GitHub
   copy_code: Copiar codigo
   open_github: Abrir GitHub
+  conflict:
+    title: Conflicto de sincronizacion detectado
+    desc: "{count} conflicto local/remoto de CV detectado. Elige que version conservar por ahora."
+    keep_local: Conservar version local
+    keep_remote: Usar version remota
   privacy:
     title: Sincronizacion con Secret Gist
     desc: Los datos del CV se guardan como JSON sin cifrar en tu GitHub Secret Gist. Los secret gists no aparecen en busquedas publicas, pero cualquiera con la URL puede leerlos.
