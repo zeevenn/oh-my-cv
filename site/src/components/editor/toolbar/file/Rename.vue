@@ -21,13 +21,5 @@ const rename = async (text?: string) => {
   if (!text || !data.resumeId) return;
 
   data.resumeName = text;
-
-  await storageService.updateResume(
-    {
-      id: data.resumeId,
-      name: text
-    },
-    false
-  );
 };
 </script>

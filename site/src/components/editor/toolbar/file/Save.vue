@@ -15,18 +15,12 @@
 import { useShortcuts } from "@ohmycv/vue-shortcuts";
 
 const { data } = useDataStore();
-const { styles } = useStyleStore();
+const { saveCurrentResume } = useResumeAutosave();
 
 const save = async () => {
   if (!data.resumeId) return;
 
-  await storageService.updateResume({
-    id: data.resumeId,
-    name: data.resumeName,
-    markdown: data.markdown,
-    css: data.css,
-    styles: toRaw(styles)
-  });
+  await saveCurrentResume({ notify: true });
 };
 
 // Use the shortcut to save the current resume

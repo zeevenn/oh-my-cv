@@ -58,6 +58,7 @@ import { isInteger } from "@renovamen/utils";
 
 const route = useRoute();
 const { data } = useDataStore();
+const { startAutosave } = useResumeAutosave();
 
 // Fetch resume data
 onMounted(() => {
@@ -65,6 +66,8 @@ onMounted(() => {
     storageService.switchToResume(Number(route.params.id));
   }
 });
+
+startAutosave();
 
 // Toogle toolbar
 const { width } = useWindowSize();

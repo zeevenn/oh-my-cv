@@ -120,15 +120,21 @@ export class StorageService {
     }
   }
 
-  public async updateResume(data: DbResumeUpdate, newUpdateTime = true) {
+  public async updateResume(
+    data: DbResumeUpdate,
+    newUpdateTime = true,
+    options: { silent?: boolean } = {}
+  ) {
     const { data: updatedData, error } = await this._db.update(data, newUpdateTime);
 
     if (error) {
       // TODO: Use toast to show error message
       console.error("Update error:", error.message);
     } else {
-      const toast = useToast();
-      toast.save();
+      if (!options.silent) {
+        const toast = useToast();
+        toast.save();
+      }
       this._emitChange({ type: "update", resume: updatedData! });
     }
 
