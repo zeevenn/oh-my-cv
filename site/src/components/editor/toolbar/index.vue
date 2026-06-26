@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-72 h-full">
+  <div class="flex w-72 h-full" lt-lg="w-full">
     <div
       id="toolbar"
       class="pane-container overflow-y-scroll hide-scrollbar bg-background"

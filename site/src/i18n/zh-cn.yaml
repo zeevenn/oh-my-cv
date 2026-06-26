@@ -4,6 +4,12 @@ toggle_theme: 切换颜色模式
 open_toolbar: 打开工具栏
 close_toolbar: 关闭工具栏
 
+editor:
+  code: 编写
+  preview: 预览
+  tools: 工具
+  mobile_nav: 编辑器视图
+
 sync:
   trigger: GitHub 同步
   title: GitHub 同步

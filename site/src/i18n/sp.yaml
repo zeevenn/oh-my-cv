@@ -4,6 +4,12 @@ toggle_theme: Cambiar tema claro/oscuro
 open_toolbar: Abrir barra de herramientas
 close_toolbar: Cerrar barra de herramientas
 
+editor:
+  code: Editar
+  preview: Vista previa
+  tools: Herramientas
+  mobile_nav: Vistas del editor
+
 sync:
   trigger: Sincronizacion GitHub
   title: Sincronizacion GitHub

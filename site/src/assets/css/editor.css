@@ -7,8 +7,129 @@
   @apply flex flex-col gap-1.5;
 }
 
+.editor-workspace,
+[data-panel-group-id="splitter-editor"],
+#code-pane,
+#preview-pane,
+.editor-tools-pane {
+  min-width: 0;
+  min-height: 0;
+}
+
+.editor-workspace {
+  position: relative;
+}
+
 .pane-container {
   @apply h-full rounded-xl;
+}
+
+.mobile-editor-nav {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  #editor-page {
+    overflow: hidden;
+  }
+
+  .editor-workspace {
+    flex-direction: column;
+    gap: 0.5rem;
+    height: calc(100dvh - 48px);
+    overflow: hidden;
+    padding: 0.5rem 0.5rem calc(4rem + env(safe-area-inset-bottom));
+  }
+
+  [data-panel-group-id="splitter-editor"] {
+    display: block !important;
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0 !important;
+  }
+
+  #code-preview-handle {
+    display: none !important;
+  }
+
+  #code-pane,
+  #preview-pane {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden;
+  }
+
+  .editor-workspace[data-mobile-panel="code"] #preview-pane,
+  .editor-workspace[data-mobile-panel="preview"] #code-pane,
+  .editor-workspace[data-mobile-panel="tools"] [data-panel-group-id="splitter-editor"] {
+    display: none !important;
+  }
+
+  .editor-tools-pane {
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .pane-container {
+    border-radius: 0.5rem;
+  }
+
+  #toolbar {
+    width: calc(100vw - 3.5rem);
+  }
+
+  #zoom-bar {
+    bottom: calc(4.25rem + env(safe-area-inset-bottom));
+  }
+
+  .mobile-editor-nav {
+    position: absolute;
+    z-index: 20;
+    right: 0.5rem;
+    bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    left: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.25rem;
+    min-height: 3.25rem;
+    padding: 0.25rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    background: hsl(var(--background));
+    box-shadow: 0 8px 24px rgb(15 23 42 / 16%);
+  }
+
+  .mobile-editor-nav button {
+    display: inline-flex;
+    min-width: 0;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: 0.5rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    transition:
+      background-color 160ms ease,
+      color 160ms ease;
+    touch-action: manipulation;
+  }
+
+  .mobile-editor-nav button:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  .mobile-editor-nav button[aria-current="page"] {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
 }
 
 /* Print mode */

@@ -4,6 +4,12 @@ toggle_theme: Toggle theme
 open_toolbar: Open toolbar
 close_toolbar: Close toolbar
 
+editor:
+  code: Write
+  preview: Preview
+  tools: Tools
+  mobile_nav: Editor views
+
 sync:
   trigger: GitHub sync
   title: GitHub Sync
