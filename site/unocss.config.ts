@@ -21,20 +21,20 @@ export default defineConfig({
         "ring-offset-background focus-visible:(outline-none ring-2 ring-ring ring-offset-2)",
       "shadow-c": "shadow shadow-[hsl(var(--border))]",
       "resume-card":
-        "relative mx-auto rounded-md duration-150 hover:(-translate-y-3 drop-shadow-xl)"
+        "relative mx-auto rounded-md duration-150 hover:(-translate-y-1 drop-shadow-md)"
     }
   ],
   preflights: [
     {
       getCSS: () => `
         :root {
-          --success: 109 58% 40%;
-          --info: 220 91% 54%;
+          --success: 161 94% 30%;
+          --info: 221 83% 53%;
         }
 
         .dark {
-          --success: 115 54% 76%;
-          --info: 217 92% 76%;
+          --success: 158 64% 52%;
+          --info: 213 94% 68%;
         }
       `
     }
@@ -67,48 +67,48 @@ export default defineConfig({
     presetShadcn(
       {
         color: {
-          base: "blue",
+          base: "slate",
           light: {
-            background: "220 23% 95%",
-            foreground: "234 16% 35%",
-            card: "220 23% 95%",
-            "card-foreground": "234 16% 35%",
-            popover: "220 23% 95%",
-            "popover-foreground": "234 16% 35%",
-            primary: "220 91% 54%",
-            "primary-foreground": "220 23% 95%",
-            secondary: "223 16% 83%",
-            "secondary-foreground": "234 16% 35%",
-            muted: "220 22% 92%",
-            "muted-foreground": "233 10% 47%",
-            accent: "220 22% 92%",
-            "accent-foreground": "234 16% 35%",
-            destructive: "347 87% 44%",
-            "destructive-foreground": "220 23% 95%",
-            border: "225 14% 77%",
-            input: "225 14% 77%",
-            ring: "220 91% 54%"
+            background: "210 40% 98%",
+            foreground: "222 47% 11%",
+            card: "0 0% 100%",
+            "card-foreground": "222 47% 11%",
+            popover: "0 0% 100%",
+            "popover-foreground": "222 47% 11%",
+            primary: "214 52% 25%",
+            "primary-foreground": "0 0% 100%",
+            secondary: "213 24% 93%",
+            "secondary-foreground": "222 47% 11%",
+            muted: "210 40% 96%",
+            "muted-foreground": "215 16% 47%",
+            accent: "213 24% 93%",
+            "accent-foreground": "222 47% 11%",
+            destructive: "0 72% 51%",
+            "destructive-foreground": "0 0% 100%",
+            border: "214 32% 91%",
+            input: "214 32% 91%",
+            ring: "214 52% 25%"
           },
           dark: {
-            background: "240 21% 15%",
-            foreground: "226 64% 88%",
-            card: "240 21% 15%",
-            "card-foreground": "226 64% 88%",
-            popover: "240 21% 15%",
-            "popover-foreground": "226 64% 88%",
-            primary: "217 92% 76%",
-            "primary-foreground": "240 23% 9%",
-            secondary: "237 16% 23%",
-            "secondary-foreground": "226 64% 88%",
-            muted: "237 16% 23%",
-            "muted-foreground": "228 24% 72%",
-            accent: "237 16% 23%",
-            "accent-foreground": "226 64% 88%",
-            destructive: "343 81% 75%",
-            "destructive-foreground": "240 23% 9%",
-            border: "234 13% 31%",
-            input: "234 13% 31%",
-            ring: "217 92% 76%"
+            background: "220 49% 8%",
+            foreground: "220 13% 91%",
+            card: "221 39% 11%",
+            "card-foreground": "220 13% 91%",
+            popover: "221 39% 11%",
+            "popover-foreground": "220 13% 91%",
+            primary: "213 94% 68%",
+            "primary-foreground": "229 84% 5%",
+            secondary: "217 33% 17%",
+            "secondary-foreground": "220 13% 91%",
+            muted: "217 33% 17%",
+            "muted-foreground": "213 27% 84%",
+            accent: "217 33% 17%",
+            "accent-foreground": "210 40% 98%",
+            destructive: "0 91% 71%",
+            "destructive-foreground": "229 84% 5%",
+            border: "215 25% 27%",
+            input: "215 25% 27%",
+            ring: "213 94% 68%"
           }
         }
       },
