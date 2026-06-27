@@ -3,7 +3,7 @@
     class="pane-container overflow-hidden bg-background"
     flex="~ col"
     default-value="markdown"
-    @update:model-value="(payload) => activateModel(payload)"
+    @update:model-value="switchModel"
   >
     <TabsList
       class="relative shrink-0 hstack w-full text-sm h-9 border-b px-4"
@@ -17,13 +17,20 @@
       <TabsTrigger value="css" p="x-4" :disabled="loading">CSS</TabsTrigger>
     </TabsList>
 
-    <div ref="editor" flex-1 />
+    <div ref="editor" class="min-h-0" flex-1 />
   </TabsRoot>
 </template>
 
 <script lang="ts" setup>
+import { useCodeEditor, type CodeEditorModel } from "~/composables/codeEditor";
+
 const editor = ref<HTMLDivElement>();
-const { setup, activateModel, dispose, loading } = useMonaco();
+const { setup, activateModel, dispose, loading } = useCodeEditor();
+
+const switchModel = (payload: string | number) => {
+  if (payload !== "markdown" && payload !== "css") return;
+  activateModel(payload as CodeEditorModel);
+};
 
 onMounted(async () => {
   await setup(editor.value);

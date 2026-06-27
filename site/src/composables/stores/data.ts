@@ -22,16 +22,16 @@ export const useDataStore = defineStore("data", () => {
     if (key === "css") dynamicCssService.injectCssEditor(value as string);
   };
 
-  const setAndSyncToMonaco = (key: "markdown" | "css", value: string) => {
+  const setAndSyncToEditor = (key: "markdown" | "css", value: string) => {
     setData(key, value);
 
-    const { setContent } = useMonaco();
+    const { setContent } = useCodeEditor();
     setContent(key, value);
   };
 
   return {
     data,
     setData,
-    setAndSyncToMonaco
+    setAndSyncToEditor
   };
 });

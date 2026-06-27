@@ -29,14 +29,14 @@
 <script lang="ts" setup>
 import { replace } from "@ohmycv/case-police";
 
-const { data, setAndSyncToMonaco } = useDataStore();
+const { data, setAndSyncToEditor } = useDataStore();
 const toast = useToast();
 
 const correct = async () => {
   const md = data.markdown;
   const result = replace(md);
 
-  setAndSyncToMonaco("markdown", result?.code ?? md);
+  setAndSyncToEditor("markdown", result?.code ?? md);
   toast.correct(result?.changed);
 };
 </script>
