@@ -49,33 +49,33 @@ const documents: Record<CodeEditorModel, string> = {
 let runtime: CodeEditorRuntime | undefined;
 let activeModel: CodeEditorModel = "markdown";
 
-const mocha = {
-  rosewater: "#f5e0dc",
-  flamingo: "#f2cdcd",
-  pink: "#f5c2e7",
-  mauve: "#cba6f7",
-  red: "#f38ba8",
-  maroon: "#eba0ac",
-  peach: "#fab387",
-  yellow: "#f9e2af",
-  green: "#a6e3a1",
-  teal: "#94e2d5",
-  sky: "#89dceb",
-  sapphire: "#74c7ec",
-  blue: "#89b4fa",
-  lavender: "#b4befe",
-  text: "#cdd6f4",
-  subtext1: "#bac2de",
-  subtext0: "#a6adc8",
-  overlay2: "#9399b2",
-  overlay1: "#7f849c",
-  overlay0: "#6c7086",
-  surface2: "#585b70",
-  surface1: "#45475a",
-  surface0: "#313244",
-  base: "#1e1e2e",
-  mantle: "#181825",
-  crust: "#11111b"
+const latte = {
+  rosewater: "#dc8a78",
+  flamingo: "#dd7878",
+  pink: "#ea76cb",
+  mauve: "#8839ef",
+  red: "#d20f39",
+  maroon: "#e64553",
+  peach: "#fe640b",
+  yellow: "#df8e1d",
+  green: "#40a02b",
+  teal: "#179299",
+  sky: "#04a5e5",
+  sapphire: "#209fb5",
+  blue: "#1e66f5",
+  lavender: "#7287fd",
+  text: "#4c4f69",
+  subtext1: "#5c5f77",
+  subtext0: "#6c6f85",
+  overlay2: "#7c7f93",
+  overlay1: "#8c8fa1",
+  overlay0: "#9ca0b0",
+  surface2: "#acb0be",
+  surface1: "#bcc0cc",
+  surface0: "#ccd0da",
+  base: "#eff1f5",
+  mantle: "#e6e9ef",
+  crust: "#dce0e8"
 };
 
 type FoldPlaceholder = {
@@ -91,8 +91,8 @@ const isFoldPlaceholder = (value: unknown): value is FoldPlaceholder =>
 const languageExtension = (model: CodeEditorModel) =>
   model === "markdown" ? markdown() : css();
 
-const catppuccinMochaHighlight = HighlightStyle.define([
-  { tag: t.comment, color: mocha.overlay1, fontStyle: "italic" },
+const catppuccinLatteHighlight = HighlightStyle.define([
+  { tag: t.comment, color: latte.overlay1, fontStyle: "italic" },
   {
     tag: [
       t.keyword,
@@ -102,22 +102,22 @@ const catppuccinMochaHighlight = HighlightStyle.define([
       t.definitionKeyword,
       t.moduleKeyword
     ],
-    color: mocha.mauve
+    color: latte.mauve
   },
-  { tag: [t.atom, t.bool, t.null, t.number, t.unit], color: mocha.peach },
-  { tag: [t.string, t.docString, t.character, t.attributeValue], color: mocha.green },
-  { tag: [t.escape, t.regexp, t.color, t.url], color: mocha.pink },
-  { tag: [t.name, t.variableName], color: mocha.text },
+  { tag: [t.atom, t.bool, t.null, t.number, t.unit], color: latte.peach },
+  { tag: [t.string, t.docString, t.character, t.attributeValue], color: latte.green },
+  { tag: [t.escape, t.regexp, t.color, t.url], color: latte.pink },
+  { tag: [t.name, t.variableName], color: latte.text },
   {
     tag: [t.function(t.variableName), t.function(t.propertyName), t.macroName],
-    color: mocha.blue
+    color: latte.blue
   },
   {
     tag: [t.definition(t.name), t.definition(t.variableName), t.className],
-    color: mocha.yellow
+    color: latte.yellow
   },
-  { tag: [t.typeName, t.namespace, t.tagName], color: mocha.yellow },
-  { tag: [t.propertyName, t.attributeName, t.labelName], color: mocha.lavender },
+  { tag: [t.typeName, t.namespace, t.tagName], color: latte.yellow },
+  { tag: [t.propertyName, t.attributeName, t.labelName], color: latte.lavender },
   {
     tag: [
       t.operator,
@@ -131,9 +131,9 @@ const catppuccinMochaHighlight = HighlightStyle.define([
       t.typeOperator,
       t.controlOperator
     ],
-    color: mocha.sky
+    color: latte.sky
   },
-  { tag: [t.punctuation, t.separator, t.bracket], color: mocha.overlay2 },
+  { tag: [t.punctuation, t.separator, t.bracket], color: latte.overlay2 },
   {
     tag: [
       t.heading,
@@ -144,23 +144,23 @@ const catppuccinMochaHighlight = HighlightStyle.define([
       t.heading5,
       t.heading6
     ],
-    color: mocha.mauve,
+    color: latte.mauve,
     fontWeight: "700"
   },
-  { tag: t.strong, color: mocha.maroon, fontWeight: "700" },
-  { tag: t.emphasis, color: mocha.maroon, fontStyle: "italic" },
-  { tag: t.link, color: mocha.blue, textDecoration: "underline" },
-  { tag: t.quote, color: mocha.teal, fontStyle: "italic" },
+  { tag: t.strong, color: latte.maroon, fontWeight: "700" },
+  { tag: t.emphasis, color: latte.maroon, fontStyle: "italic" },
+  { tag: t.link, color: latte.blue, textDecoration: "underline" },
+  { tag: t.quote, color: latte.teal, fontStyle: "italic" },
   {
     tag: t.monospace,
-    color: mocha.green,
-    backgroundColor: mocha.surface0,
+    color: latte.green,
+    backgroundColor: latte.surface0,
     borderRadius: "4px"
   },
-  { tag: t.contentSeparator, color: mocha.overlay0 },
-  { tag: t.inserted, color: mocha.green },
-  { tag: t.deleted, color: mocha.red },
-  { tag: t.invalid, color: mocha.red, textDecoration: "underline wavy" }
+  { tag: t.contentSeparator, color: latte.overlay0 },
+  { tag: t.inserted, color: latte.green },
+  { tag: t.deleted, color: latte.red },
+  { tag: t.invalid, color: latte.red, textDecoration: "underline wavy" }
 ]);
 
 const createFoldMarker = (open: boolean) => {
@@ -192,15 +192,15 @@ const editorTheme = () =>
     {
       "&": {
         height: "100%",
-        color: mocha.text,
-        backgroundColor: mocha.base
+        color: latte.text,
+        backgroundColor: latte.base
       },
       "&.cm-focused": {
         outline: "none"
       },
       ".cm-scroller": {
         overflow: "auto",
-        backgroundColor: mocha.base,
+        backgroundColor: latte.base,
         fontFamily:
           'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
         fontSize: "13px",
@@ -210,44 +210,44 @@ const editorTheme = () =>
       ".cm-content": {
         minHeight: "100%",
         padding: "0.75rem 0",
-        caretColor: mocha.rosewater
+        caretColor: latte.rosewater
       },
       ".cm-cursor": {
-        borderLeftColor: mocha.rosewater
+        borderLeftColor: latte.rosewater
       },
       ".cm-line": {
         padding: "0 0.75rem"
       },
       ".cm-gutters": {
-        borderRight: `1px solid ${mocha.surface0}`,
-        color: mocha.overlay0,
-        backgroundColor: mocha.mantle
+        borderRight: `1px solid ${latte.surface0}`,
+        color: latte.overlay0,
+        backgroundColor: latte.mantle
       },
       ".cm-activeLine": {
-        backgroundColor: "rgb(49 50 68 / 0.55)"
+        backgroundColor: "rgb(204 208 218 / 0.38)"
       },
       ".cm-activeLineGutter": {
-        color: mocha.lavender,
-        backgroundColor: mocha.surface0,
+        color: latte.lavender,
+        backgroundColor: latte.surface0,
         fontWeight: "600"
       },
       ".cm-selectionBackground, &.cm-focused .cm-selectionBackground": {
-        backgroundColor: "rgb(137 180 250 / 0.32)"
+        backgroundColor: "rgb(30 102 245 / 0.18)"
       },
       ".cm-searchMatch": {
-        backgroundColor: "rgb(249 226 175 / 0.22)",
-        outline: `1px solid rgb(249 226 175 / 0.45)`
+        backgroundColor: "rgb(223 142 29 / 0.18)",
+        outline: "1px solid rgb(223 142 29 / 0.38)"
       },
       ".cm-searchMatch.cm-searchMatch-selected": {
-        backgroundColor: "rgb(250 179 135 / 0.35)"
+        backgroundColor: "rgb(254 100 11 / 0.24)"
       },
       ".cm-matchingBracket": {
-        color: mocha.green,
-        backgroundColor: mocha.surface0,
-        outline: `1px solid ${mocha.surface1}`
+        color: latte.green,
+        backgroundColor: latte.surface0,
+        outline: `1px solid ${latte.surface1}`
       },
       ".cm-nonmatchingBracket": {
-        color: mocha.red
+        color: latte.red
       },
       ".cm-foldGutter .cm-gutterElement": {
         width: "1.45rem",
@@ -260,14 +260,14 @@ const editorTheme = () =>
         width: "1rem",
         height: "1rem",
         borderRadius: "5px",
-        color: mocha.overlay1,
+        color: latte.overlay1,
         cursor: "pointer",
         verticalAlign: "middle",
         transition: "color 160ms ease, background-color 160ms ease"
       },
       ".cm-foldMarker:hover": {
-        color: mocha.blue,
-        backgroundColor: mocha.surface0
+        color: latte.blue,
+        backgroundColor: latte.surface0
       },
       ".cm-foldMarker::before": {
         content: '""',
@@ -287,10 +287,10 @@ const editorTheme = () =>
       ".cm-foldPlaceholder": {
         margin: "0 0.1rem",
         padding: "0 0.45rem",
-        border: `1px solid ${mocha.surface1}`,
+        border: `1px solid ${latte.surface1}`,
         borderRadius: "6px",
-        color: mocha.subtext0,
-        backgroundColor: mocha.surface0,
+        color: latte.subtext0,
+        backgroundColor: latte.surface0,
         font: "inherit",
         fontSize: "0.85em",
         lineHeight: "1.35",
@@ -298,9 +298,9 @@ const editorTheme = () =>
         verticalAlign: "baseline"
       },
       ".cm-foldPlaceholder:hover": {
-        color: mocha.blue,
-        borderColor: mocha.surface2,
-        backgroundColor: mocha.surface1
+        color: latte.blue,
+        borderColor: latte.surface2,
+        backgroundColor: latte.surface1
       },
       "@media (max-width: 768px)": {
         ".cm-scroller": {
@@ -311,7 +311,7 @@ const editorTheme = () =>
         }
       }
     },
-    { dark: true }
+    { dark: false }
   );
 
 const foldPlaceholderConfig = codeFolding({
@@ -332,7 +332,7 @@ const editorExtensions = (language: Compartment, theme: Compartment): Extension[
   dropCursor(),
   EditorState.allowMultipleSelections.of(true),
   indentOnInput(),
-  syntaxHighlighting(catppuccinMochaHighlight, { fallback: true }),
+  syntaxHighlighting(catppuccinLatteHighlight, { fallback: true }),
   bracketMatching(),
   rectangularSelection(),
   crosshairCursor(),
