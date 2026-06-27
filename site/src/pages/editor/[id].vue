@@ -33,7 +33,7 @@
 
         <SplitterResizeHandle
           id="code-preview-handle"
-          class="w-3 relative after:(content-[''] absolute bg-gray-400/40 w-1 h-10 rounded-full inset-0 m-auto)"
+          class="w-3 relative after:(content-[''] absolute bg-border w-1 h-10 rounded-full inset-0 m-auto)"
         />
 
         <SplitterPanel id="preview-pane">

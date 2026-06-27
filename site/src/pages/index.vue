@@ -24,11 +24,8 @@
           <div w-fit sm:mx-auto>
             <div hstack mb-3 gap-x-1.5>
               <span
-                :class="[
-                  'rounded-full flex-center size-5',
-                  i ? 'bg-blue-400' : 'bg-primary'
-                ]"
-                text="white xs"
+                :class="['rounded-full flex-center size-5', i ? 'bg-info' : 'bg-primary']"
+                text="primary-foreground xs"
               >
                 <span :class="i ? 'i-wpf:privacy' : 'i-mdi:rocket-launch'" />
               </span>

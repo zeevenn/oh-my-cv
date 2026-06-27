@@ -15,7 +15,7 @@
     >
       <span
         class="hidden group-hover:block group-focus-visible:block p-1 min-w-6 rounded bg-primary absolute -top-2 left-1/2 -translate-x-2/4 -translate-y-full after:(absolute content-[''] size-0 border-5 border-transparent border-t-primary top-full inset-x-0 mx-auto)"
-        text="white xs center"
+        text="primary-foreground xs center"
       >
         {{ modelValue?.at(0) }}
       </span>

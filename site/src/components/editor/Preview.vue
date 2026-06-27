@@ -14,7 +14,7 @@
 
     <div
       id="zoom-bar"
-      class="hstack fixed bottom-4 ml-2 shadow-c rounded-full overflow-hidden text-primary-foreground bg-blue-500"
+      class="hstack fixed bottom-4 ml-2 shadow-c rounded-full overflow-hidden text-primary-foreground bg-primary"
       lg="bottom-auto top-15 opacity-0 hover:opacity-100 focus-within:opacity-100"
     >
       <button @click="scale *= 1.1" aria-label="Zoom in">
@@ -57,6 +57,6 @@ watch(width, fitWidth);
 
 <style scoped>
 #zoom-bar button {
-  @apply flex-center size-10 text-lg hover:bg-blue-600 focus-visible:bg-blue-600;
+  @apply flex-center size-10 text-lg hover:bg-primary/90 focus-visible:bg-primary/90;
 }
 </style>

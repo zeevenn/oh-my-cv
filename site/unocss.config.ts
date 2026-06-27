@@ -19,7 +19,7 @@ export default defineConfig({
       "hide-on-mobile": "lt-md:hidden",
       "ring-when-focus":
         "ring-offset-background focus-visible:(outline-none ring-2 ring-ring ring-offset-2)",
-      "shadow-c": "shadow shadow-gray-300 dark:shadow-neutral-900",
+      "shadow-c": "shadow shadow-[hsl(var(--border))]",
       "resume-card":
         "relative mx-auto rounded-md duration-150 hover:(-translate-y-3 drop-shadow-xl)"
     }
@@ -28,13 +28,13 @@ export default defineConfig({
     {
       getCSS: () => `
         :root {
-          --success: 142 71% 29%;
-          --info: 224 77% 48%;
+          --success: 109 58% 40%;
+          --info: 220 91% 54%;
         }
 
         .dark {
-          --success: 142 76% 40%;
-          --info: 209 87% 57%;
+          --success: 115 54% 76%;
+          --info: 217 92% 76%;
         }
       `
     }
@@ -67,38 +67,48 @@ export default defineConfig({
     presetShadcn(
       {
         color: {
-          base: "orange",
+          base: "blue",
           light: {
-            background: "0 0% 100%",
-            foreground: "215 25% 27%",
-            card: "0 0% 100%",
-            "card-foreground": "215 25% 27%",
-            popover: "0 0% 100%",
-            "popover-foreground": "215 25% 27%",
-            secondary: "220 13% 91%",
-            "secondary-foreground": "220.9 39.3% 11%", // gray
-            muted: "220 14.3% 95.9%", // gray
-            "muted-foreground": "220 8.9% 46.1%", // gray
-            accent: "220 14.3% 95.9%", // gray
-            "accent-foreground": "220.9 39.3% 11%", // gray
-            border: "216 12% 85%",
-            input: "216 12% 85%"
+            background: "220 23% 95%",
+            foreground: "234 16% 35%",
+            card: "220 23% 95%",
+            "card-foreground": "234 16% 35%",
+            popover: "220 23% 95%",
+            "popover-foreground": "234 16% 35%",
+            primary: "220 91% 54%",
+            "primary-foreground": "220 23% 95%",
+            secondary: "223 16% 83%",
+            "secondary-foreground": "234 16% 35%",
+            muted: "220 22% 92%",
+            "muted-foreground": "233 10% 47%",
+            accent: "220 22% 92%",
+            "accent-foreground": "234 16% 35%",
+            destructive: "347 87% 44%",
+            "destructive-foreground": "220 23% 95%",
+            border: "225 14% 77%",
+            input: "225 14% 77%",
+            ring: "220 91% 54%"
           },
           dark: {
-            background: "213 12% 15%",
-            foreground: "0 0% 90%",
-            card: "213 12% 15%",
-            "card-foreground": "0 0% 90%",
-            popover: "213 12% 15%",
-            "popover-foreground": "0 0% 90%",
-            secondary: "230 5% 36%",
-            "secondary-foreground": "0 0% 98%", // neutral
-            muted: "220 10% 21%",
-            "muted-foreground": "0 0% 63.9%", // neutral
-            accent: "220 10% 21%",
-            "accent-foreground": "0 0% 98%", // neutral
-            border: "0 0% 45%",
-            input: "0 0% 45%"
+            background: "240 21% 15%",
+            foreground: "226 64% 88%",
+            card: "240 21% 15%",
+            "card-foreground": "226 64% 88%",
+            popover: "240 21% 15%",
+            "popover-foreground": "226 64% 88%",
+            primary: "217 92% 76%",
+            "primary-foreground": "240 23% 9%",
+            secondary: "237 16% 23%",
+            "secondary-foreground": "226 64% 88%",
+            muted: "237 16% 23%",
+            "muted-foreground": "228 24% 72%",
+            accent: "237 16% 23%",
+            "accent-foreground": "226 64% 88%",
+            destructive: "343 81% 75%",
+            "destructive-foreground": "240 23% 9%",
+            border: "234 13% 31%",
+            input: "234 13% 31%",
+            ring: "217 92% 76%"
           }
         }
       },
