@@ -12,6 +12,10 @@ body {
   background: hsl(var(--accent));
 }
 
+.toaster.group {
+  max-width: calc(100vw - 2rem);
+}
+
 /* `workspace` element should fill the space not occupied by the header */
 header {
   height: 48px;
