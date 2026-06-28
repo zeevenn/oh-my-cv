@@ -3,6 +3,14 @@
 @import "./dashboard.css";
 
 /* Variables have been injected via `unocss-preset-shadcn` (https://github.com/hyoban/unocss-preset-shadcn) */
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
 * {
   border-color: hsl(var(--border));
 }

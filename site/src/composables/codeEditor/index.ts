@@ -354,7 +354,7 @@ const editorTheme = (dark: boolean) => {
       },
       "@media (max-width: 768px)": {
         ".cm-scroller": {
-          fontSize: "16px"
+          fontSize: "14px"
         },
         ".cm-content": {
           padding: "0.75rem 0"

@@ -49,6 +49,8 @@ export default defineNuxtConfig({
   },
 
   colorMode: {
+    preference: "system",
+    fallback: "light",
     classSuffix: ""
   },
 
@@ -62,6 +64,7 @@ export default defineNuxtConfig({
       ],
       meta: [
         { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { name: "color-scheme", content: "light dark" },
         { name: "application-name", content: "Oh My CV!" },
         { name: "apple-mobile-web-app-title", content: "Oh My CV!" },
         { name: "msapplication-TileColor", content: "#fff" },
