@@ -2,7 +2,7 @@
   <div class="font-ui">
     <VitePwaManifest />
     <NuxtPage />
-    <UiToaster close-button />
+    <UiToaster />
   </div>
 </template>
 

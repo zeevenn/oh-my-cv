@@ -21,7 +21,45 @@ body {
 }
 
 .toaster.group {
-  max-width: calc(100vw - 2rem);
+  --width: min(28rem, calc(100vw - 1.5rem));
+  max-width: calc(100vw - 1.5rem);
+  pointer-events: none;
+}
+
+.toaster.group[data-y-position="top"] {
+  top: max(0.75rem, env(safe-area-inset-top)) !important;
+}
+
+.toaster.group[data-x-position="center"] {
+  right: auto !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+.toaster.group [data-sonner-toast] {
+  min-height: 2.75rem;
+  padding: 0.625rem 1rem;
+  border-radius: 9999px;
+  pointer-events: auto;
+  box-shadow: 0 10px 30px rgb(15 23 42 / 16%);
+  backdrop-filter: saturate(140%) blur(12px);
+}
+
+.dark .toaster.group [data-sonner-toast] {
+  box-shadow: 0 14px 36px rgb(0 0 0 / 28%);
+}
+
+@media (max-width: 600px) {
+  .toaster.group[data-x-position="center"] {
+    right: 0.75rem !important;
+    left: 0.75rem !important;
+    width: calc(100% - 1.5rem) !important;
+    transform: none !important;
+  }
+
+  .toaster.group [data-sonner-toast] {
+    width: 100% !important;
+  }
 }
 
 /* `workspace` element should fill the space not occupied by the header */
