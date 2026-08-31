@@ -4,6 +4,8 @@ import {
   historyKeymap,
   indentWithTab
 } from "@codemirror/commands";
+import { catppuccinLatte, catppuccinMocha } from "@catppuccin/codemirror";
+import { flavors } from "@catppuccin/palette";
 import { css } from "@codemirror/lang-css";
 import { markdown } from "@codemirror/lang-markdown";
 import {
@@ -11,9 +13,7 @@ import {
   codeFolding,
   foldGutter,
   foldKeymap,
-  HighlightStyle,
-  indentOnInput,
-  syntaxHighlighting
+  indentOnInput
 } from "@codemirror/language";
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
 import { Compartment, EditorState, type Extension } from "@codemirror/state";
@@ -29,7 +29,6 @@ import {
   lineNumbers,
   rectangularSelection
 } from "@codemirror/view";
-import { tags as t } from "@lezer/highlight";
 import { isClient } from "@renovamen/utils";
 
 export type CodeEditorModel = "markdown" | "css";
@@ -38,7 +37,6 @@ type CodeEditorRuntime = {
   view: EditorView;
   language: Compartment;
   theme: Compartment;
-  highlight: Compartment;
   stopThemeWatch: () => void;
 };
 
@@ -49,66 +47,6 @@ const documents: Record<CodeEditorModel, string> = {
 
 let runtime: CodeEditorRuntime | undefined;
 let activeModel: CodeEditorModel = "markdown";
-
-const latte = {
-  rosewater: "#dc8a78",
-  flamingo: "#dd7878",
-  pink: "#ea76cb",
-  mauve: "#8839ef",
-  red: "#d20f39",
-  maroon: "#e64553",
-  peach: "#fe640b",
-  yellow: "#df8e1d",
-  green: "#40a02b",
-  teal: "#179299",
-  sky: "#04a5e5",
-  sapphire: "#209fb5",
-  blue: "#1e66f5",
-  lavender: "#7287fd",
-  text: "#4c4f69",
-  subtext1: "#5c5f77",
-  subtext0: "#6c6f85",
-  overlay2: "#7c7f93",
-  overlay1: "#8c8fa1",
-  overlay0: "#9ca0b0",
-  surface2: "#acb0be",
-  surface1: "#bcc0cc",
-  surface0: "#ccd0da",
-  base: "#eff1f5",
-  mantle: "#e6e9ef",
-  crust: "#dce0e8"
-};
-
-const mocha = {
-  rosewater: "#f5e0dc",
-  flamingo: "#f2cdcd",
-  pink: "#f5c2e7",
-  mauve: "#cba6f7",
-  red: "#f38ba8",
-  maroon: "#eba0ac",
-  peach: "#fab387",
-  yellow: "#f9e2af",
-  green: "#a6e3a1",
-  teal: "#94e2d5",
-  sky: "#89dceb",
-  sapphire: "#74c7ec",
-  blue: "#89b4fa",
-  lavender: "#b4befe",
-  text: "#cdd6f4",
-  subtext1: "#bac2de",
-  subtext0: "#a6adc8",
-  overlay2: "#9399b2",
-  overlay1: "#7f849c",
-  overlay0: "#6c7086",
-  surface2: "#585b70",
-  surface1: "#45475a",
-  surface0: "#313244",
-  base: "#1e1e2e",
-  mantle: "#181825",
-  crust: "#11111b"
-};
-
-type CatppuccinPalette = typeof latte;
 
 type FoldPlaceholder = {
   lines: number;
@@ -123,91 +61,10 @@ const isFoldPlaceholder = (value: unknown): value is FoldPlaceholder =>
 const languageExtension = (model: CodeEditorModel) =>
   model === "markdown" ? markdown() : css();
 
-const getPalette = (dark: boolean): CatppuccinPalette => (dark ? mocha : latte);
+const catppuccinTheme = (dark: boolean): Extension =>
+  dark ? catppuccinMocha : catppuccinLatte;
 
-const createCatppuccinHighlight = (palette: CatppuccinPalette) =>
-  HighlightStyle.define([
-    { tag: t.comment, color: palette.overlay1, fontStyle: "italic" },
-    {
-      tag: [
-        t.keyword,
-        t.modifier,
-        t.operatorKeyword,
-        t.controlKeyword,
-        t.definitionKeyword,
-        t.moduleKeyword
-      ],
-      color: palette.mauve
-    },
-    { tag: [t.atom, t.bool, t.null, t.number, t.unit], color: palette.peach },
-    { tag: [t.string, t.docString, t.character, t.attributeValue], color: palette.green },
-    { tag: [t.escape, t.regexp, t.color, t.url], color: palette.pink },
-    { tag: [t.name, t.variableName], color: palette.text },
-    {
-      tag: [t.function(t.variableName), t.function(t.propertyName), t.macroName],
-      color: palette.blue
-    },
-    {
-      tag: [t.definition(t.name), t.definition(t.variableName), t.className],
-      color: palette.yellow
-    },
-    { tag: [t.typeName, t.namespace, t.tagName], color: palette.yellow },
-    { tag: [t.propertyName, t.attributeName, t.labelName], color: palette.lavender },
-    {
-      tag: [
-        t.operator,
-        t.derefOperator,
-        t.arithmeticOperator,
-        t.logicOperator,
-        t.bitwiseOperator,
-        t.compareOperator,
-        t.updateOperator,
-        t.definitionOperator,
-        t.typeOperator,
-        t.controlOperator
-      ],
-      color: palette.sky
-    },
-    { tag: [t.punctuation, t.separator, t.bracket], color: palette.overlay2 },
-    {
-      tag: [
-        t.heading,
-        t.heading1,
-        t.heading2,
-        t.heading3,
-        t.heading4,
-        t.heading5,
-        t.heading6
-      ],
-      color: palette.mauve,
-      fontWeight: "700"
-    },
-    { tag: t.strong, color: palette.maroon, fontWeight: "700" },
-    { tag: t.emphasis, color: palette.maroon, fontStyle: "italic" },
-    { tag: t.link, color: palette.blue, textDecoration: "underline" },
-    { tag: t.quote, color: palette.teal, fontStyle: "italic" },
-    {
-      tag: t.monospace,
-      color: palette.green,
-      backgroundColor: palette.surface0,
-      borderRadius: "4px"
-    },
-    { tag: t.contentSeparator, color: palette.overlay0 },
-    { tag: t.inserted, color: palette.green },
-    { tag: t.deleted, color: palette.red },
-    { tag: t.invalid, color: palette.red, textDecoration: "underline wavy" }
-  ]);
-
-const catppuccinHighlights = {
-  light: createCatppuccinHighlight(latte),
-  dark: createCatppuccinHighlight(mocha)
-};
-
-const getHighlight = (dark: boolean) =>
-  dark ? catppuccinHighlights.dark : catppuccinHighlights.light;
-
-const syntaxHighlight = (dark: boolean) =>
-  syntaxHighlighting(getHighlight(dark), { fallback: true });
+const getPalette = (dark: boolean) => (dark ? flavors.mocha : flavors.latte).colors;
 
 const createFoldMarker = (open: boolean) => {
   const marker = document.createElement("span");
@@ -233,22 +90,29 @@ const createFoldPlaceholder = (
   return placeholder;
 };
 
-const editorTheme = (dark: boolean) => {
+const editorOverrides = (dark: boolean) => {
   const palette = getPalette(dark);
+  const selectionOverrides: Parameters<typeof EditorView.theme>[0] = dark
+    ? {
+        ".cm-selectionBackground, .cm-content ::selection": {
+          backgroundColor: palette.surface1.hex
+        },
+        "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground": {
+          backgroundColor: palette.surface1.hex
+        }
+      }
+    : {};
 
   return EditorView.theme(
     {
       "&": {
-        height: "100%",
-        color: palette.text,
-        backgroundColor: palette.base
+        height: "100%"
       },
       "&.cm-focused": {
         outline: "none"
       },
       ".cm-scroller": {
         overflow: "auto",
-        backgroundColor: palette.base,
         fontFamily:
           'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
         fontSize: "13px",
@@ -257,48 +121,12 @@ const editorTheme = (dark: boolean) => {
       },
       ".cm-content": {
         minHeight: "100%",
-        padding: "0.75rem 0",
-        caretColor: palette.rosewater
-      },
-      ".cm-cursor": {
-        borderLeftColor: palette.rosewater
+        padding: "0.75rem 0"
       },
       ".cm-line": {
         padding: "0 0.75rem"
       },
-      ".cm-gutters": {
-        borderRight: `1px solid ${palette.surface0}`,
-        color: palette.overlay0,
-        backgroundColor: palette.mantle
-      },
-      ".cm-activeLine": {
-        backgroundColor: dark ? "rgb(49 50 68 / 0.55)" : "rgb(204 208 218 / 0.38)"
-      },
-      ".cm-activeLineGutter": {
-        color: palette.lavender,
-        backgroundColor: palette.surface0,
-        fontWeight: "600"
-      },
-      ".cm-selectionBackground, &.cm-focused .cm-selectionBackground": {
-        backgroundColor: dark ? "rgb(137 180 250 / 0.32)" : "rgb(30 102 245 / 0.18)"
-      },
-      ".cm-searchMatch": {
-        backgroundColor: dark ? "rgb(249 226 175 / 0.22)" : "rgb(223 142 29 / 0.18)",
-        outline: dark
-          ? "1px solid rgb(249 226 175 / 0.45)"
-          : "1px solid rgb(223 142 29 / 0.38)"
-      },
-      ".cm-searchMatch.cm-searchMatch-selected": {
-        backgroundColor: dark ? "rgb(250 179 135 / 0.35)" : "rgb(254 100 11 / 0.24)"
-      },
-      ".cm-matchingBracket": {
-        color: palette.green,
-        backgroundColor: palette.surface0,
-        outline: `1px solid ${palette.surface1}`
-      },
-      ".cm-nonmatchingBracket": {
-        color: palette.red
-      },
+      ...selectionOverrides,
       ".cm-foldGutter .cm-gutterElement": {
         width: "1.45rem",
         padding: "0 0.2rem"
@@ -310,14 +138,14 @@ const editorTheme = (dark: boolean) => {
         width: "1rem",
         height: "1rem",
         borderRadius: "5px",
-        color: palette.overlay1,
+        color: palette.overlay1.hex,
         cursor: "pointer",
         verticalAlign: "middle",
         transition: "color 160ms ease, background-color 160ms ease"
       },
       ".cm-foldMarker:hover": {
-        color: palette.blue,
-        backgroundColor: palette.surface0
+        color: palette.blue.hex,
+        backgroundColor: palette.surface0.hex
       },
       ".cm-foldMarker::before": {
         content: '""',
@@ -337,10 +165,10 @@ const editorTheme = (dark: boolean) => {
       ".cm-foldPlaceholder": {
         margin: "0 0.1rem",
         padding: "0 0.45rem",
-        border: `1px solid ${palette.surface1}`,
+        border: `1px solid ${palette.surface1.hex}`,
         borderRadius: "6px",
-        color: palette.subtext0,
-        backgroundColor: palette.surface0,
+        color: palette.subtext0.hex,
+        backgroundColor: palette.surface0.hex,
         font: "inherit",
         fontSize: "0.85em",
         lineHeight: "1.35",
@@ -348,9 +176,9 @@ const editorTheme = (dark: boolean) => {
         verticalAlign: "baseline"
       },
       ".cm-foldPlaceholder:hover": {
-        color: palette.blue,
-        borderColor: palette.surface2,
-        backgroundColor: palette.surface1
+        color: palette.blue.hex,
+        borderColor: palette.surface2.hex,
+        backgroundColor: palette.surface1.hex
       },
       "@media (max-width: 768px)": {
         ".cm-scroller": {
@@ -365,6 +193,12 @@ const editorTheme = (dark: boolean) => {
   );
 };
 
+// Earlier CodeMirror theme extensions have higher CSS precedence.
+const themeExtensions = (dark: boolean): Extension => [
+  editorOverrides(dark),
+  catppuccinTheme(dark)
+];
+
 const foldPlaceholderConfig = codeFolding({
   preparePlaceholder: (state, range): FoldPlaceholder => ({
     lines: state.doc.lineAt(range.to).number - state.doc.lineAt(range.from).number
@@ -375,7 +209,6 @@ const foldPlaceholderConfig = codeFolding({
 const editorExtensions = (
   language: Compartment,
   theme: Compartment,
-  highlight: Compartment,
   dark: boolean
 ): Extension[] => [
   lineNumbers(),
@@ -388,7 +221,6 @@ const editorExtensions = (
   dropCursor(),
   EditorState.allowMultipleSelections.of(true),
   indentOnInput(),
-  highlight.of(syntaxHighlight(dark)),
   bracketMatching(),
   rectangularSelection(),
   crosshairCursor(),
@@ -404,7 +236,7 @@ const editorExtensions = (
     setData(activeModel, documents[activeModel]);
   }),
   language.of(languageExtension(activeModel)),
-  theme.of(editorTheme(dark)),
+  theme.of(themeExtensions(dark)),
   keymap.of([
     indentWithTab,
     ...defaultKeymap,
@@ -437,13 +269,12 @@ export const useCodeEditor = () => {
 
       const language = new Compartment();
       const theme = new Compartment();
-      const highlight = new Compartment();
 
       const view = new EditorView({
         parent: container,
         state: EditorState.create({
           doc: documents[activeModel],
-          extensions: editorExtensions(language, theme, highlight, isDark)
+          extensions: editorExtensions(language, theme, isDark)
         })
       });
 
@@ -453,15 +284,12 @@ export const useCodeEditor = () => {
           const dark = value === "dark";
 
           view.dispatch({
-            effects: [
-              theme.reconfigure(editorTheme(dark)),
-              highlight.reconfigure(syntaxHighlight(dark))
-            ]
+            effects: theme.reconfigure(themeExtensions(dark))
           });
         }
       );
 
-      runtime = { view, language, theme, highlight, stopThemeWatch };
+      runtime = { view, language, theme, stopThemeWatch };
     } catch (error) {
       // TODO: use toast to show error
       console.error("Failed to initialize the editor: ", error);
