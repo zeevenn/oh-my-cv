@@ -127,6 +127,9 @@ const editorOverrides = (dark: boolean) => {
         padding: "0 0.75rem"
       },
       ...selectionOverrides,
+      "&:has(.cm-selectionLayer .cm-selectionBackground) .cm-activeLine": {
+        backgroundColor: "transparent"
+      },
       ".cm-foldGutter .cm-gutterElement": {
         width: "1.45rem",
         padding: "0 0.2rem"
