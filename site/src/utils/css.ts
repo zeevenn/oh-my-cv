@@ -2,7 +2,7 @@ import { injectCss } from "@ohmycv/dynamic-css";
 import { useConstant } from "~/composables/constant";
 import type { ResumeStyles } from "~/composables/stores/style";
 
-const { RENDER } = useConstant();
+const { PAPER, RENDER } = useConstant();
 
 /**
  * Service for injecting dynamic CSS into the document.
@@ -54,7 +54,10 @@ export class DynamicCssService {
   };
 
   private paperSize = (styles: ResumeStyles) => {
-    return `@media print { @page { size: ${styles.paper}; } }`;
+    return `@media print {
+      :root { --resume-paper-width: ${PAPER.SIZES[styles.paper].w}mm; }
+      @page { size: ${styles.paper}; }
+    }`;
   };
 
   /**

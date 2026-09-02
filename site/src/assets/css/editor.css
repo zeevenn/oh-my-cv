@@ -153,18 +153,36 @@
   }
 
   #editor-page {
+    display: block;
+    width: var(--resume-paper-width, 210mm);
     height: auto;
     overflow: visible;
   }
 
-  .workspace,
-  [data-panel-group-id="splitter-editor"] {
+  html,
+  body,
+  #__nuxt,
+  .font-ui,
+  .editor-workspace,
+  .editor-workspace[data-mobile-panel] > [data-panel-group-id="splitter-editor"],
+  .editor-workspace[data-mobile-panel] #preview-pane,
+  .pane-container,
+  .vue-zoom-container,
+  .vue-zoom,
+  #resume-preview {
     display: block !important;
+    width: var(--resume-paper-width, 210mm) !important;
+    max-width: var(--resume-paper-width, 210mm) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    position: static !important;
     padding: 0 !important;
   }
 
   header,
   .toaster.group,
+  .mobile-editor-nav,
   #zoom-bar,
   #code-pane,
   #code-preview-handle,
