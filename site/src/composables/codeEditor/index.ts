@@ -113,6 +113,7 @@ const editorOverrides = (dark: boolean) => {
       },
       ".cm-scroller": {
         overflow: "auto",
+        overscrollBehavior: "contain",
         fontFamily:
           'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
         fontSize: "13px",

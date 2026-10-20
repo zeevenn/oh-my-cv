@@ -1,4 +1,16 @@
 #dashboard-page {
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   height: 100dvh;
+  overflow: hidden;
+}
+
+#dashboard-page > .workspace {
+  width: 100%;
+  overflow: hidden;
+}
+
+#dashboard-page [data-radix-scroll-area-viewport] {
+  overscroll-behavior: contain;
 }

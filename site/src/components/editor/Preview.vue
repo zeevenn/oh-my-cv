@@ -1,6 +1,6 @@
 <template>
   <div
-    class="pane-container overflow-scroll hide-scrollbar bg-secondary"
+    class="pane-container overflow-auto overscroll-contain hide-scrollbar bg-secondary"
     border="4 secondary"
   >
     <VueZoom ref="zoom" :scale="scale">

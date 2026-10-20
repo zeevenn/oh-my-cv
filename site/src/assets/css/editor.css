@@ -50,7 +50,6 @@
   .editor-workspace {
     flex-direction: column;
     gap: 0.5rem;
-    height: calc(100dvh - 48px);
     overflow: hidden;
     padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom)) !important;
   }
