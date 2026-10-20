@@ -10,8 +10,25 @@ import type {
 import { StorageVersion } from "./utils";
 import { MigrateService, type ValidStorageJsonData } from "./migrate";
 
+// All service instances share one read/modify/write queue for the workspace.
+let storageOperations: Promise<unknown> = Promise.resolve();
+
 export class LocalForageDbService implements DbService {
   private _key = "ohmycv_data";
+
+  private _withStorageLock<T>(callback: () => Promise<T>): Promise<T> {
+    const operation = storageOperations.then(() => {
+      // Coordinate other tabs too; the queue also supports browsers without Web Locks.
+      if (isClient && typeof navigator !== "undefined" && navigator.locks) {
+        return navigator.locks.request(this._key, callback);
+      }
+
+      return callback();
+    });
+
+    storageOperations = operation.catch(() => {});
+    return operation;
+  }
 
   private _storageError = () => ({
     data: null,
@@ -101,89 +118,100 @@ export class LocalForageDbService implements DbService {
   }
 
   public async queryAll() {
-    const storage = await this._storage();
+    // Reads can migrate and write storage, so they must share the same lock.
+    return this._withStorageLock(async () => {
+      const storage = await this._storage();
 
-    if (!storage) return this._storageError();
+      if (!storage) return this._storageError();
 
-    const data = Object.entries(storage)
-      .map(([id, data]) => ({ id: Number(id), ...data }))
-      .sort(
-        (a, b) =>
-          b.updated_at.localeCompare(a.updated_at) ||
-          b.created_at.localeCompare(a.created_at)
-      );
+      const data = Object.entries(storage)
+        .map(([id, data]) => ({ id: Number(id), ...data }))
+        .sort(
+          (a, b) =>
+            b.updated_at.localeCompare(a.updated_at) ||
+            b.created_at.localeCompare(a.created_at)
+        );
 
-    return this._success(data);
+      return this._success(data);
+    });
   }
 
   public async queryById(id: number) {
-    const res = await this._getStorageIfIdExists(id, true);
+    return this._withStorageLock(async () => {
+      const res = await this._getStorageIfIdExists(id, true);
 
-    if (!res.data) return res;
-    else return this._success({ id, ...res.data[id] });
+      if (!res.data) return res;
+      else return this._success({ id, ...res.data[id] });
+    });
   }
 
   public async update(data: DbResumeUpdate, newUpdateTime: boolean) {
-    const res = await this._getStorageIfIdExists(data.id);
-    if (res.error) return res;
+    return this._withStorageLock(async () => {
+      const res = await this._getStorageIfIdExists(data.id);
+      if (res.error) return res;
 
-    const storage = res.data!;
-    const { id, ...updatedResume } = {
-      ...storage[data.id],
-      ...data,
-      updated_at: newUpdateTime ? now().toString() : storage[data.id].updated_at
-    };
+      const storage = res.data!;
+      const { id, ...updatedResume } = {
+        ...storage[data.id],
+        ...data,
+        updated_at: newUpdateTime ? now().toString() : storage[data.id].updated_at
+      };
 
-    storage[id] = updatedResume;
-    await this._setItems(storage);
+      storage[id] = updatedResume;
+      await this._setItems(storage);
 
-    return this._success({ id, ...updatedResume });
+      return this._success({ id, ...updatedResume });
+    });
   }
 
   public async create(data: DbResumeEmpty | DbResume) {
-    const storage = await this._storage();
+    return this._withStorageLock(async () => {
+      const storage = await this._storage();
 
-    // Check storage
-    if (!storage) return this._storageError();
+      // Check storage
+      if (!storage) return this._storageError();
 
-    // Check if resume already exists
-    if ("id" in data && storage[data.id]) {
-      return {
-        data: null,
-        error: {
-          message: `Resume ${data.id} already exists.`
-        }
+      // Check if resume already exists
+      if ("id" in data && storage[data.id]) {
+        return {
+          data: null,
+          error: {
+            message: `Resume ${data.id} already exists.`
+          }
+        };
+      }
+
+      const _now = now();
+
+      // Generate a new "id", "updated_at" and "created_at" if not provided
+      const createdData: DbResume = {
+        updated_at: _now.toString(),
+        created_at: _now.toString(),
+        id: _now,
+        ...data
       };
-    }
 
-    const _now = now();
+      const { id, ...resume } = createdData;
 
-    // Generate a new "id", "updated_at" and "created_at" if not provided
-    const createdData: DbResume = {
-      updated_at: _now.toString(),
-      created_at: _now.toString(),
-      id: _now,
-      ...data
-    };
+      storage[id] = resume;
+      await this._setItems(storage);
 
-    const { id, ...resume } = createdData;
-
-    storage[id] = resume;
-    await this._setItems(storage);
-
-    return this._success(createdData);
+      return this._success(createdData);
+    });
   }
 
   public async delete(id: number) {
-    const res = await this._getStorageIfIdExists(id);
-    if (res.error) return res;
+    return this._withStorageLock(async () => {
+      const res = await this._getStorageIfIdExists(id);
+      if (res.error) return res;
 
-    const storage = res.data!;
-    const deleted = copy(storage[id]);
+      const storage = res.data!;
+      const deleted = copy(storage[id]);
 
-    delete storage[id];
-    await this._setItems(storage);
+      delete storage[id];
+      await this._setItems(storage);
 
-    return this._success({ id, ...deleted });
+      return this._success({ id, ...deleted });
+    });
   }
 }
